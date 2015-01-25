@@ -5,9 +5,18 @@
 import numpy as np
 import scipy as sp 
 import matplotlib.pyplot as plt
-
-
+import sense
 
 #%%
-plt.plot([1,2,3,4])
+#Loading matlab data
+exercise_data = sp.io.loadmat('hansen_exercises.mat')
+csm = exercise_data['smaps']
 
+#%%
+#Show a coil sensitivity map
+plt.imshow(abs(csm[:,:,1]))
+
+#%%
+reload(sense)
+(unmix, gmap) = sense.calculate_sense_unmixing(4,csm)
+plt.imshow(abs(gmap))
