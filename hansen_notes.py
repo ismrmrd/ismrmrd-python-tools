@@ -11,10 +11,13 @@ import sense
 #Loading matlab data
 exercise_data = sp.io.loadmat('hansen_exercises.mat')
 csm = exercise_data['smaps']
+csm = csm.transpose()
+csm = np.ascontiguousarray(csm)
+
 
 #%%
 #Show a coil sensitivity map
-plt.imshow(abs(csm[:,:,1]))
+plt.imshow(abs(csm[1,:,:]))
 
 #%%
 reload(sense)
