@@ -55,3 +55,4 @@ target/
 
 #Random data files
 *.mat
+*.h5

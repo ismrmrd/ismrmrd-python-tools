@@ -4,8 +4,9 @@
 #Basic setup
 import numpy as np
 import scipy as sp 
+import scipy.io
 import matplotlib.pyplot as plt
-import sense
+from ismrmrdtools import sense
 
 #%%
 #Loading matlab data
@@ -23,3 +24,4 @@ plt.imshow(abs(csm[1,:,:]))
 reload(sense)
 (unmix, gmap) = sense.calculate_sense_unmixing(4,csm)
 plt.imshow(abs(gmap))
+plt.show()
