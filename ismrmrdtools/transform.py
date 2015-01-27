@@ -30,6 +30,6 @@ def transform_image_to_kspace(img, dim=None, k_shape=None):
     if not dim:
         dim = range(img.ndim)
 
-    k = fftshift(fft(ifftshift(img, axes=dim), s=k_shape, axes=dim), axes=dim)
+    k = fftshift(fftn(ifftshift(img, axes=dim), s=k_shape, axes=dim), axes=dim)
     k /= np.sqrt(np.prod(np.take(img.shape, dim)))
     return k
