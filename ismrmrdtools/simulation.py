@@ -32,7 +32,7 @@ def generate_birdcage_sensitivities(matrix_size = 256, number_of_coils = 8, rela
                 out[c,y,x] =  (1/rr) * np.exp(1j*phi)
                 
     if normalize:
-         rss = np.squeeze(np.sqrt(np.sum(out ** 2, 0)))
+         rss = np.squeeze(np.sqrt(np.sum(abs(out) ** 2, 0)))
          out = out / np.tile(rss,(number_of_coils,1,1))
                 
     return out
@@ -91,7 +91,7 @@ def phantom (matrix_size = 256, phantom_type = 'Modified Shepp-Logan', ellipses 
 	elif (np.size (ellipses, 1) != 6):
 		raise AssertionError ("Wrong number of columns in user phantom")
 	
-	ph = np.zeros ((matrix_size, matrix_size))
+	ph = np.zeros ((matrix_size, matrix_size),dtype=np.float32)
 
 	# Create the pixel grid
 	ygrid, xgrid = np.mgrid[-1:1:(1j*matrix_size), -1:1:(1j*matrix_size)]

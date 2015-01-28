@@ -5,6 +5,7 @@ Created on Sat Jan 24 14:01:54 2015
 @author: Michael S> Hansen
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
 def calculate_sense_unmixing(acc_factor, csm, regularization_factor = 0.001):
     '''Calculates the unmixing coefficients for a 2D image
@@ -26,12 +27,11 @@ def calculate_sense_unmixing(acc_factor, csm, regularization_factor = 0.001):
     assert csm.ndim == 3, "Coil sensitivity map must have exactly 3 dimensions"
     
     unmix = np.zeros(csm.shape,np.complex64)
-    gmap = np.zeros(csm.shape[1:3])
     
     for x in range(0,csm.shape[2]):
-        unmix[:,:,x] = calculate_sense_unmixing_1d(acc_factor, np.squeeze(csm[:,:,x]), regularization_factor)       
+        unmix[:,:,x] = calculate_sense_unmixing_1d(acc_factor, np.squeeze(csm[:,:,x]), regularization_factor)
 
-    gmap = np.squeeze(np.sqrt(np.sum(unmix ** 2, 0)))
+    gmap = np.squeeze(np.sqrt(np.sum(abs(unmix) ** 2, 0))) * np.squeeze(np.sqrt(np.sum(abs(csm) ** 2, 0)))
     
     return (unmix,gmap)
 
@@ -42,13 +42,13 @@ def calculate_sense_unmixing_1d(acc_factor, csm1d, regularization_factor):
         
     assert (ny % acc_factor) == 0, "ny must be a multiple of the acceleration factor"        
 
-    unmix1d = np.zeros((nc,ny))
+    unmix1d = np.zeros((nc,ny),dtype=np.complex64)
 
     nblocks = ny/acc_factor
     for b in range(0,nblocks):
         A = np.matrix(csm1d[:,b:ny:nblocks]).T
         if np.max(np.abs(A)) > 0:
-#            unmix1d[b:ny:nblocks,:] = np.linalg.pinv(A)
+#            unmix1d[:,b:ny:nblocks] = np.linalg.pinv(A)
             AHA = A.H * A;
             reduced_eye = np.diag(np.abs(np.diag(AHA))>0)
             n_alias = np.sum(reduced_eye)
