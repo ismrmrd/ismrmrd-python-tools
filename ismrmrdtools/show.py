@@ -1,3 +1,6 @@
+"""
+Simple tiled image display
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -5,8 +8,8 @@ def imshow(image_matrix, tile_shape=None, scale=None, titles=[]):
     """ Tiles images and displays them in a window.
 
     :param image_matrix: a 2D or 3D set of image data
-    :param tile_shape: optional shape (rows, cols) for tiling images
-    :param scale: optional (min,max) values for scaling all images
+    :param tile_shape: optional shape ``(rows, cols)`` for tiling images
+    :param scale: optional ``(min,max)`` values for scaling all images
     :param titles: optional list of titles for each subplot
     """
     assert image_matrix.ndim in [2, 3], "image_matrix must have 2 or 3 dimensions"
@@ -32,7 +35,6 @@ def imshow(image_matrix, tile_shape=None, scale=None, titles=[]):
                 "number of titles must equal 3rd dim extent of image_matrix"
 
     cols, rows = tile_shape
-    print(cols, rows)
     fig = plt.figure()
     for z in range(image_matrix.shape[0]):
         a = fig.add_subplot(cols, rows, z+1)

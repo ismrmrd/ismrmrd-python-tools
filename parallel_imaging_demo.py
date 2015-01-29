@@ -3,10 +3,7 @@
 #%%
 #Basic setup
 import numpy as np
-from ismrmrdtools import sense
-from ismrmrdtools import show
-from ismrmrdtools import simulation
-from ismrmrdtools import transform
+from ismrmrdtools import sense, show, simulation, transform
 
 
 #%%

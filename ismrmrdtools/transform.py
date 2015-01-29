@@ -1,3 +1,6 @@
+"""
+Helpers for transforming data from k-space to image space and vice-versa.
+"""
 import numpy as np
 from numpy.fft import fftshift, ifftshift, fftn, ifftn
 
