@@ -13,13 +13,19 @@ def calculate_prewhitening(noise):
     :returns w: Prewhitening matrix, ``[coil, coil]``, w*data is prewhitened
     '''
 
-    assert img.ndim == 2, "Noise data must have exactly  dimensions"
-    assert img.shape[1]>=img.shape[0], "Need at least as many samples as channels"
+    assert noise.ndim == 2, "Noise data must have exactly  dimensions"
+    assert noise.shape[1]>=noise.shape[0], "Need at least as many samples as channels"
 
     # Compute the economy svd
     (u,s,v) = np.linalg.svd(np.matrix(noise),full_matrices=False)
-    
-    w = np.diag(1/s) * u.H
+    # Scale by the number of samples (real and complex) and the singular values
+    nsamp = noise.shape[1]
+    w = np.sqrt((2.0 * (nsamp-1))) * np.diag(1/s) * u.H
+
+    # Check
+    # Rn = (1.0/(nsamp-1)) * np.dot(noise,noise.H)
+    # wn = np.dot(w,noise)
+    # Rwn = (1.0/(nsamp-1)) * np.dot(wn, wn.H)
 
     return w 
     
