@@ -1,9 +1,28 @@
 # -*- coding: utf-8 -*-
 """
-Calculate coil sensivity maps
+Utilities for coil sensivity maps, pre-whitening, etc
 """
 import numpy as np
 from scipy import ndimage
+
+def calculate_prewhitening(noise):
+    '''Calculates the noise pre-whitening matrix
+
+    :param noise: Input noise data (array or matrix), ``[coil, nsamples]``
+
+    :returns w: Prewhitening matrix, ``[coil, coil]``, w*data is prewhitened
+    '''
+
+    assert img.ndim == 2, "Noise data must have exactly  dimensions"
+    assert img.shape[1]>=img.shape[0], "Need at least as many samples as channels"
+
+    # Compute the economy svd
+    (u,s,v) = np.linalg.svd(np.matrix(noise),full_matrices=False)
+    
+    w = np.diag(1/s) * u.H
+
+    return w 
+    
 
 def calculate_csm_walsh(img, smoothing=5, niter=3):
     '''Calculates the coil sensitivities for 2D data using an iterative version of the Walsh method
