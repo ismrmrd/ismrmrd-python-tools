@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy as sp
+
 from numpy.fft import fftshift, ifftshift, fftn, ifftn
 def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_mask=None, csm=None, target_data=None):
     
@@ -43,7 +45,7 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_m
     kx_cal = (sampled_indices[1][0],sampled_indices[1][-1])
     ky_cal = (sampled_indices[0][0],sampled_indices[0][-1])
     
-    for s in range(0,acc_factor-1):
+    for s in range(0,acc_factor):
         kernel_mask = np.zeros((kernel_size[0]*acc_factor, kernel_size[1]),dtype=np.int8)
         kernel_mask[s:kernel_mask.shape[0]:acc_factor,:] = 1
         s_data = source_data[:,ky_cal[0]:ky_cal[1],kx_cal[0]:kx_cal[1]]
@@ -51,6 +53,8 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_m
         k = estimate_convolution_kernel(s_data,kernel_mask,t_data)
         kernel = kernel + k
 
+    #return kernel
+    
     kernel = kernel[:,:,::-1,::-1] #flip kernel in preparation for convolution
     
     csm_ss = np.sum(csm * np.conj(csm),0)
@@ -88,8 +92,6 @@ def estimate_convolution_kernel(source_data, kernel_mask, target_data=None):
     assert target_data.ndim == 3, "Targe data must have exactly 3 dimensions"
     assert kernel_mask.ndim == 2, "Kernel mask must have exactly 2 dimensions"
          
-#    nx = source_data.shape[2]
-#    ny = source_data.shape[1]
     nc_source = source_data.shape[0]
     nc_target = target_data.shape[0]
 
@@ -103,14 +105,10 @@ def estimate_convolution_kernel(source_data, kernel_mask, target_data=None):
     unknowns = offsets.shape[0]*nc_source    
     
     
-#    print "source_data.shape: " + str(source_data.shape)
-#    print "ky_range: " + str(ky_range)
-#    print "kx_range: " + str(kx_range)
+    A = np.asmatrix(np.zeros((equations, unknowns),dtype=np.complex128))
+    b = np.asmatrix(np.zeros((equations, nc_target), dtype=np.complex128))
+
     
-    A = np.asmatrix(np.zeros((equations, unknowns),dtype=np.complex64))
-    b = np.asmatrix(np.zeros((equations, nc_target), dtype=np.complex64))
-
-
     for sc in range(0,nc_source):
         for p in range(0,offsets.shape[0]):
             A[:,sc*offsets.shape[0]+p] = source_data[sc,(ky_range[0]+offsets[p,0]):(ky_range[1]+offsets[p,0]),(kx_range[0]+offsets[p,1]):(kx_range[1]+offsets[p,1])].reshape((equations,1))                       
@@ -121,14 +119,17 @@ def estimate_convolution_kernel(source_data, kernel_mask, target_data=None):
     if A.shape[0] < 3*A.shape[1]:
         print "Warning: number of samples in calibration data might be insufficient"
     
-    S = np.linalg.svd(A,compute_uv=False)
-    A_inv = np.linalg.pinv(A.H*A + np.eye(A.shape[1])*(1e-3*np.max(abs(S))**2))*A.H
-    x = A_inv*b
 
+    S = np.linalg.svd(A,compute_uv=False)
+    A_inv = np.dot(np.linalg.pinv(np.dot(A.H,A) + np.eye(A.shape[1])*(1e-6*np.max(abs(S))**2)),A.H)
+    x = np.dot(A_inv,b)
+    
+    offsets = np.argwhere(kernel_mask==1)
     kernel = np.zeros((nc_target,nc_source, kernel_mask.shape[0],kernel_mask.shape[1]),dtype=np.complex64)
-    rep_mask = np.tile(kernel_mask,(nc_target,nc_source)).reshape(nc_target,nc_source,kernel_mask.shape[0],kernel_mask.shape[1])
-    sampled_indices = np.argwhere(rep_mask==1)
-    kernel.ravel()[np.ravel_multi_index((sampled_indices[:,0],sampled_indices[:,1],sampled_indices[:,2],sampled_indices[:,3]),rep_mask.shape)] = x.ravel()
+    for tc in range(0,nc_target):
+        for sc in range(0,nc_source):
+            for p in range(0,offsets.shape[0]):
+                kernel[tc,sc,offsets[p,0],offsets[p,1]] = x[sc*offsets.shape[0]+p,tc]
     
     return kernel
 
