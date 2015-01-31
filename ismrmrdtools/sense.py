@@ -3,7 +3,6 @@
 Calculate SENSE unmixing coefficients
 """
 import numpy as np
-import matplotlib.pyplot as plt
 
 def calculate_sense_unmixing(acc_factor, csm, regularization_factor = 0.001):
     '''Calculates the unmixing coefficients for a 2D image

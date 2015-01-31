@@ -3,6 +3,52 @@
 Tools for generating coil sensitivities and phantoms
 """
 import numpy as np
+from ismrmrdtools import transform
+
+def sample_data(img_obj, csm, acc=1, ref=0, sshift=0):
+#%  Samples the k-space of object provided in 'img_obj' after first applying
+#%  coil sensitivity maps in 'csm' and Fourier transforming to k-space.
+#%
+#%  INPUT:
+#%    - img_obj [x,y]    : Object in image space
+#%    - csm     [x,y,c]  : Coil sensitivity maps
+#%    - acc     scalar   : Acceleration factor
+#%    - ref     scalar   : Reference lines (in center of k-space)
+#%    - sshift  scalar   : Sampling shift, i.e for undersampling, do we
+#%                         start with line 1 or line 1+sshift?
+#%
+#%  OUPUT:
+#%    - data    [kx,ky,c]: Sampled data in k-space (zeros where not sampled)
+#%    - pat     [kx,ky,c]: Sampling pattern (0 = not sampled,
+#%                                           1 = imaging data,
+#%                                           2 = reference data,
+#%                                           3 = reference and imaging data)
+#%
+#%
+#%   Code made available for the ISMRM 2013 Sunrise Educational Course
+#% 
+#%   Michael S. Hansen (michael.hansen@nih.gov)
+#%
+
+    sshift = sshift%acc;
+    
+    assert img_obj.ndim == 2, "Only two dimensional objects supported at the moment"
+    assert csm.ndim == 3, "csm must be a 3 dimensional array"
+    assert img_obj.shape[0] == csm.shape[1], "Object and csm dimension mismatch"    
+    assert img_obj.shape[1] == csm.shape[2], "Object and csm dimension mismatch" 
+
+    pat_img = np.zeros(img_obj.shape,dtype=np.int8)
+    pat_img[sshift:-1:acc,:] = 1
+    pat_ref = np.zeros(img_obj.shape,dtype=np.int8)
+    if ref>0:
+        pat_ref[(0+img_obj.shape[0]/2):(ref+img_obj.shape[0]/2),:] = 2
+
+    pat = pat_img + pat_ref
+    
+    coil_images = np.tile(img_obj,(csm.shape[0], 1, 1)) * csm
+    data = transform.transform_image_to_kspace(coil_images,dim=(1,2))
+    data = data * (np.tile(pat,(csm.shape[0], 1, 1))>0).astype('float32')
+    return (data,pat)
 
 def generate_birdcage_sensitivities(matrix_size = 256, number_of_coils = 8, relative_radius = 1.5, normalize=True):
     """ Generates birdcage coil sensitivites.
