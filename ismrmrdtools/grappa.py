@@ -2,41 +2,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from numpy.fft import fftshift, ifftshift,ifftn
+import coils
+
 def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_mask=None, csm=None, target_data=None):
     
     ny = source_data.shape[1]
     nc_source = source_data.shape[0]
 
     
-    if target_data==None:
+    if target_data is None:
         target_data = source_data
         
-    if data_mask==None:
+    if data_mask is None:
         data_mask = np.ones((ny, nc_source))
         
     nc_target = target_data.shape[0]
         
-    if csm==None:
-        print "Error, no CSM supped"
-        return 0
+    if csm is None:
+        #Assume calibration data is in the middle         
+        f = np.asarray(np.asmatrix(np.hamming(np.max(np.sum(data_mask,0)))).T * np.asmatrix(np.hamming(np.max(np.sum(data_mask,1)))))
+        fmask = np.zeros((source_data.shape[1],source_data.shape[2]),dtype=np.complex64)
+        idx = np.argwhere(data_mask==1)
+        fmask[idx[:,0],idx[:,1]] = f.reshape(idx.shape[0])
+        fmask = np.tile(fmask[None,:,:],(nc_source,1,1))
+        csm = fftshift(ifftn(ifftshift(source_data * fmask, axes=(1,2)), axes=(1,2)), axes=(1,2))
+        (csm,rho) = coils.calculate_csm_walsh(csm)
         
-#%If csm is not provided, we will estimate it.
-#if (isempty(csm)),
-#    if (verbose),
-#        fprintf('Estimating coil sensitivity...');
-#    end
-#    %Apply some filtering to avoid ringing
-#    f = hamming(max(sum(data_mask,1))) * hamming(max(sum(data_mask,2)))';
-#    fmask = zeros(size(source_data));
-#    fmask((1:size(f,1))+bitshift(size(source_data,1),-1)-bitshift(size(f,1),-1), ...
-#          (1:size(f,2))+bitshift(size(source_data,2),-1)-bitshift(size(f,2),-1), :) = ...
-#          repmat(f, [1 1 size(source_data,3)]);
-#    csm = ismrm_transform_kspace_to_image(source_data .* fmask, [1 2]);
-#    csm = ismrm_estimate_csm_walsh(csm); %Estimate coil sensitivity maps.
-#    if (verbose),
-#        fprintf('done.\n');
-#    end
-#end        
     
     kernel = np.zeros((nc_target,nc_source,kernel_size[0]*acc_factor,kernel_size[1]),dtype=np.complex64)
     sampled_indices = np.nonzero(data_mask)
@@ -74,7 +65,7 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_m
     
 def estimate_convolution_kernel(source_data, kernel_mask, target_data=None):
 
-    if target_data == None:
+    if target_data is None:
         target_data = source_data
 
     assert source_data.ndim == 3, "Source data must have exactly 3 dimensions"

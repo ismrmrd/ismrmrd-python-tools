@@ -34,7 +34,8 @@ show.imshow(abs(recon_sense))
 
 #%%
 reload(grappa)
-(unmix_grappa,gmap_grappa) = grappa.calculate_grappa_unmixing(data, acc_factor, data_mask=pat>1, csm=csm)
+#(unmix_grappa,gmap_grappa) = grappa.calculate_grappa_unmixing(data, acc_factor, data_mask=pat>1, csm=csm)
+(unmix_grappa,gmap_grappa) = grappa.calculate_grappa_unmixing(data, acc_factor, data_mask=pat>1)
 show.imshow(abs(gmap_grappa))
 recon_grappa = np.squeeze(np.sum(alias_img * unmix_sense,0))
 show.imshow(abs(recon_grappa))
