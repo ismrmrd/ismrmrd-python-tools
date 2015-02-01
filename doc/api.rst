@@ -23,7 +23,7 @@ SENSE
    :members:
 
 GRAPPA
------
+------
 
 .. automodule:: ismrmrdtools.grappa
    :members:
