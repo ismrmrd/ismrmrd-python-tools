@@ -4,7 +4,7 @@ Simple tiled image display
 import numpy as np
 import matplotlib.pyplot as plt
 
-def imshow(image_matrix, tile_shape=None, scale=None, titles=[]):
+def imshow(image_matrix, tile_shape=None, scale=None, titles=[], colorbar=False):
     """ Tiles images and displays them in a window.
 
     :param image_matrix: a 2D or 3D set of image data
@@ -41,4 +41,6 @@ def imshow(image_matrix, tile_shape=None, scale=None, titles=[]):
         a.set_title("%d: %s" % (z, titles[z]))
         a.set_axis_off()
         plt.imshow(image_matrix[z,:,:], vmin=vmin, vmax=vmax)
+        if colorbar is True:
+            plt.colorbar()
     plt.show()

@@ -4,6 +4,7 @@ Utilities for coil sensivity maps, pre-whitening, etc
 """
 import numpy as np
 from scipy import ndimage
+from matplotlib import pyplot as plt
 
 def calculate_prewhitening(noise):
     '''Calculates the noise pre-whitening matrix
@@ -29,6 +30,24 @@ def calculate_prewhitening(noise):
 
     return w 
     
+def calculate_prewhitening2(noise, scale_factor=1.0):
+    '''Calculates the noise pre-whitening matrix
+
+    :param noise: Input noise data (array or matrix), ``[coil, nsamples]``
+    :scale_factor: Applied on the noise covariance matrix. Used to 
+                   adjust for effective noise bandwith and difference in 
+                   sampling rate between noise calibration and actual measurement: 
+                   scale_factor = (T_acq_dwell/T_noise_dwell)*NoiseReceiverBandwidthRatio
+                   
+    :returns w: Prewhitening matrix, ``[coil, coil]``, w*data is prewhitened
+    '''
+
+    noise_int = noise.reshape((noise.shape[0],noise.size/noise.shape[0]))
+    M = float(noise_int.shape[1])    
+    dmtx = (1/(M-1))*np.asmatrix(noise_int)*np.asmatrix(noise_int).H    
+    dmtx = np.linalg.inv(np.linalg.cholesky(dmtx));
+    dmtx = dmtx*np.sqrt(2)*np.sqrt(scale_factor);
+    return dmtx
 
 def calculate_csm_walsh(img, smoothing=5, niter=3):
     '''Calculates the coil sensitivities for 2D data using an iterative version of the Walsh method
