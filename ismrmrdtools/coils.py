@@ -4,7 +4,6 @@ Utilities for coil sensivity maps, pre-whitening, etc
 """
 import numpy as np
 from scipy import ndimage
-from matplotlib import pyplot as plt
 
 def calculate_prewhitening(noise):
     '''Calculates the noise pre-whitening matrix
