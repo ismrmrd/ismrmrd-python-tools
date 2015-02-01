@@ -10,10 +10,22 @@ Transform
 .. automodule:: ismrmrdtools.transform
    :members:
 
-Sense
+Coils
+---------
+
+.. automodule:: ismrmrdtools.coils
+   :members:
+      
+SENSE
 -----
 
 .. automodule:: ismrmrdtools.sense
+   :members:
+
+GRAPPA
+-----
+
+.. automodule:: ismrmrdtools.grappa
    :members:
 
 Simulation
