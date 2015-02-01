@@ -5,10 +5,10 @@ Calculate SENSE unmixing coefficients
 import numpy as np
 
 def calculate_sense_unmixing(acc_factor, csm, regularization_factor = 0.001):
-    '''Calculates the unmixing coefficients for a 2D image
+    '''Calculates the unmixing coefficients for a 2D image using a SENSE algorithm
 
     :param acc_factor: Acceleration factor, e.g. 2
-    :param csm: Coil sensitivity map, [coil, y, x]
+    :param csm: Coil sensitivity map, ``[coil, y, x]``
     :param regularization_factor: adds tychonov regularization (default ``0.001``)
 
         - 0 = no regularization

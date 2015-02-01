@@ -3,8 +3,25 @@ import matplotlib.pyplot as plt
 
 from numpy.fft import fftshift, ifftshift,ifftn
 import coils
+import time
 
-def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_mask=None, csm=None, target_data=None):
+def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_mask=None, csm=None, regularization_factor=0.001, target_data=None):
+    '''Calculates unmixing coefficients for a 2D image using a GRAPPA algorithm
+
+    :param source_data: k-space source data ``[coils, y, x]``
+    :param acc_factor: Acceleration factor, e.g. 2
+    :param kernel_shape: Shape of the k-space kernel ``(ky-lines, kx-points)`` (default ``(4,5)``)
+    :param data_mask: Mask of where calibration data is located in source_data (defaults to all of source_data)
+    :param csm: Coil sensitivity map, ``[coil, y, x]`` (used for b1-weighted combining. Will be estimated from calibratino data if not supplied)
+    :param regularization_factor: adds tychonov regularization (default ``0.001``)
+
+        - 0 = no regularization
+        - set higher for more aggressive regularization.
+
+    :returns unmix: Image unmixing coefficients for a single ``x`` location, ``[coil, y, x]``
+    :returns gmap: Noise enhancement map, ``[y, x]``
+    '''
+
     
     ny = source_data.shape[1]
     nc_source = source_data.shape[0]
@@ -63,7 +80,7 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_m
     
     return (unmix,gmap)
     
-def estimate_convolution_kernel(source_data, kernel_mask, target_data=None):
+def estimate_convolution_kernel(source_data, kernel_mask, regularization_factor=0.001, target_data=None):
 
     if target_data is None:
         target_data = source_data
@@ -101,7 +118,7 @@ def estimate_convolution_kernel(source_data, kernel_mask, target_data=None):
     
 
     S = np.linalg.svd(A,compute_uv=False)
-    A_inv = np.dot(np.linalg.pinv(np.dot(A.H,A) + np.eye(A.shape[1])*(1e-3*np.max(np.abs(S)))**2),A.H)
+    A_inv = np.dot(np.linalg.pinv(np.dot(A.H,A) + np.eye(A.shape[1])*(regularization_factor*np.max(np.abs(S)))**2),A.H)
     x = np.dot(A_inv,b)
     
     offsets = np.argwhere(kernel_mask==1)
