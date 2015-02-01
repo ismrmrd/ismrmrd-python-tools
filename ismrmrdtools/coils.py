@@ -49,6 +49,11 @@ def calculate_prewhitening2(noise, scale_factor=1.0):
     dmtx = dmtx*np.sqrt(2)*np.sqrt(scale_factor);
     return dmtx
 
+def apply_prewhitening(data,dmtx):
+    s = data.shape
+    return np.asarray(np.asmatrix(dmtx)*np.asmatrix(data.reshape(data.shape[0],data.size/data.shape[0]))).reshape(s)
+    
+    
 def calculate_csm_walsh(img, smoothing=5, niter=3):
     '''Calculates the coil sensitivities for 2D data using an iterative version of the Walsh method
 
