@@ -28,26 +28,17 @@ reload(simulation)
 acc_factor = 2
 ref_lines = 16
 (data,pat) = simulation.sample_data(phan,csm,acc_factor,ref_lines)
+
+#%%
+#Add noise
 noise = np.random.standard_normal(data.shape) + 1j*np.random.standard_normal(data.shape)
 noise = (5.0/matrix_size)*noise
 kspace = np.logical_or(pat==1,pat==3).astype('float32')*(data + noise)
 data = (pat>0).astype('float32')*(data + noise)
 
 #%%
-#Noise prewhitening speed test
-reload(coils)
-noise_tmp = noise.reshape((noise.shape[0],noise.size/noise.shape[0]))
-#noise_tmp = np.random.standard_normal((32,64000)) + 1j*np.random.standard_normal((32,64000))
-
-t = time.time()
-dmtx = coils.calculate_prewhitening(noise_tmp)
-elapsed = time.time()-t;
-print "Time Inati prewhitening: " + str(elapsed)
-
-t = time.time()
-dmtx = coils.calculate_prewhitening2(noise_tmp)
-elapsed = time.time()-t;
-print "Time Hansen prewhitening: " + str(elapsed)
+#Calculate the noise prewhitening matrix
+dmtx = coils.calculate_prewhitening(noise)
 
 #%%
 # Apply prewhitening
