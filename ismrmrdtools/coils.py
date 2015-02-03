@@ -55,7 +55,7 @@ def calculate_csm_walsh(img, smoothing=5, niter=3):
     nx = img.shape[2]
 
     # Compute the sample covariance pointwise
-    Rs = np.zeros((ncoils,ncoils,ny,nx))
+    Rs = np.zeros((ncoils,ncoils,ny,nx),dtype=img.dtype)
     for p in range(ncoils):
         for q in range(ncoils):
             Rs[p,q,:,:] = img[p,:,:] * np.conj(img[q,:,:])
@@ -69,7 +69,7 @@ def calculate_csm_walsh(img, smoothing=5, niter=3):
     # and corresponding eigenvalue of the signal covariance
     # matrix using the power method
     rho = np.zeros((ny, nx))
-    csm = np.zeros((ncoils, ny, nx))
+    csm = np.zeros((ncoils, ny, nx),dtype=img.dtype)
     for y in range(ny):
         for x in range(nx):
             R = Rs[:,:,y,x]
