@@ -5,22 +5,31 @@ Created on Wed Feb  4 09:59:18 2015
 @author: Michael S. Hansen
 """
 
-#Convert data from siemens file with
-#   siemens_to_ismrmrd -f meas_MID00032_FID22409_oil_gre_128_150reps_pause_alpha_10.dat -z 1 -o data_reps_noise.h5
-#   siemens_to_ismrmrd -f meas_MID00032_FID22409_oil_gre_128_150reps_pause_alpha_10.dat -z 2 -o data_reps_data.h5
-# Data can be found in Gadgetron integration test datasets
-
 #%%
 import os
 import ismrmrd
 import ismrmrd.xsd
 import numpy as np
+import scipy as sp
 
-from ismrmrdtools import show, transform, coils
+from ismrmrdtools import show, transform, coils, grappa, sense
+
+#%%
+#Convert data from siemens file with
+#   siemens_to_ismrmrd -f meas_MID00032_FID22409_oil_gre_128_150reps_pause_alpha_10.dat -z 1 -o data_reps_noise.h5
+#   siemens_to_ismrmrd -f meas_MID00032_FID22409_oil_gre_128_150reps_pause_alpha_10.dat -z 2 -o data_reps_data.h5
+# Data can be found in Gadgetron integration test datasets
+
+filename_noise = 'data_reps_noise.h5'
+#filename_noise =  'tpat3_noise.h5'
+
+filename_data = 'data_reps_data.h5'
+#filename_data = 'tpat3_data.h5'
+
+
 
 #%%
 # Read the noise data
-filename_noise = 'data_reps_noise.h5'
 if not os.path.isfile(filename_noise):
     print("%s is not a valid file" % filename_noise)
     raise SystemExit
@@ -43,10 +52,11 @@ for acqnum in range(noise_reps):
        raise Exception("Errror: non noise scan found in noise calibration")
 
     noise[:,acqnum*noise_samples:acqnum*noise_samples+noise_samples] = acq.data
-
+    
+noise = noise.astype('complex64')
+    
 #%% Read the actual data
 # Read the noise data
-filename_data = 'data_reps_data.h5'
 if not os.path.isfile(filename_data):
     print("%s is not a valid file" % filename_data)
     raise SystemExit
@@ -70,6 +80,9 @@ eFOVz = enc.encodedSpace.fieldOfView_mm.z
 rFOVx = enc.reconSpace.fieldOfView_mm.x
 rFOVy = enc.reconSpace.fieldOfView_mm.y
 rFOVz = enc.reconSpace.fieldOfView_mm.z
+
+#Parallel imaging factor
+acc_factor = enc.parallelImaging.accelerationFactor.kspace_encoding_step_1
 
 # Number of Slices, Reps, Contrasts, etc.
 ncoils = header.acquisitionSystemInformation.receiverChannels
@@ -137,6 +150,8 @@ for acqnum in range(firstacq,dset.number_of_acquisitions):
     z = acq.idx.kspace_encode_step_2
     all_data[rep, contrast, slice, :, z, y, :] = acq.data
 
+all_data = all_data.astype('complex64')
+
 #%%
 # Coil combination
 coil_images = transform.transform_kspace_to_image(np.squeeze(np.mean(all_data,0)),(1,2))
@@ -144,7 +159,20 @@ coil_images = transform.transform_kspace_to_image(np.squeeze(np.mean(all_data,0)
 csm_ss = np.sum(csm * np.conj(csm),0)
 csm_ss = csm_ss + 1.0*(csm_ss < np.spacing(1)).astype('float32')
 
-recon_data = transform.transform_kspace_to_image(np.squeeze(all_data),(2,3))
-recon = np.sum(np.tile(np.conj(csm[None,:,:,:]),(nreps,1,1,1)) * recon_data,1)
-show.imshow(np.std(np.real(recon),0),colorbar=True)
+if acc_factor > 1:
+    coil_data = np.squeeze(np.mean(all_data,0))
+    reload(grappa)
+    (unmix,gmap) = grappa.calculate_grappa_unmixing(coil_data, acc_factor)
+    #(unmix,gmap) = sense.calculate_sense_unmixing(acc_factor,csm)
+    show.imshow(abs(gmap),colorbar=True,scale=(1,2))
+    
+recon = np.zeros((nreps, ncontrasts, nslices, eNz, eNy, rNx), dtype=np.complex64)
+for r in range(0,nreps):
+    recon_data = transform.transform_kspace_to_image(np.squeeze(all_data[r,:,:,:,:,:,:]),(1,2))*np.sqrt(acc_factor)
+    if acc_factor > 1:
+        recon[r,:,:,:,:] = np.sum(unmix * recon_data,0)
+    else:
+        recon[r,:,:,:,:] = np.sum(np.conj(csm) * recon_data,0)
+    
+show.imshow(np.squeeze(np.std(np.abs(recon),0)),colorbar=True,scale=(1,2))
 

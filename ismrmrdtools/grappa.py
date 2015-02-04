@@ -19,7 +19,7 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_m
     :returns gmap: Noise enhancement map, ``[y, x]``
     '''
 
-    
+    nx = source_data.shape[2]
     ny = source_data.shape[1]
     nc_source = source_data.shape[0]
 
@@ -28,7 +28,7 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_m
         target_data = source_data
         
     if data_mask is None:
-        data_mask = np.ones((ny, nc_source))
+        data_mask = np.ones((ny, nx))
         
     nc_target = target_data.shape[0]
         
