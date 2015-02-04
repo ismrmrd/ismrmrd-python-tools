@@ -146,3 +146,5 @@ csm_ss = csm_ss + 1.0*(csm_ss < np.spacing(1)).astype('float32')
 
 recon_data = transform.transform_kspace_to_image(np.squeeze(all_data),(2,3))
 recon = np.sum(np.tile(np.conj(csm[None,:,:,:]),(nreps,1,1,1)) * recon_data,1)
+show.imshow(np.std(np.real(recon),0),colorbar=True)
+
