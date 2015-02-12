@@ -52,7 +52,7 @@ else:
 
 # TODO loop through the acquisitions looking for noise scans
 firstacq=0
-for acqnum in range(dset.number_of_acquisitions):
+for acqnum in range(dset.number_of_acquisitions()):
     acq = dset.read_acquisition(acqnum)
     
     # TODO: Currently ignoring noise scans
@@ -69,7 +69,7 @@ for acqnum in range(dset.number_of_acquisitions):
 all_data = np.zeros((nreps, ncontrasts, nslices, ncoils, eNz, eNy, rNx), dtype=np.complex64)
 
 # Loop through the rest of the acquisitions and stuff
-for acqnum in range(firstacq,dset.number_of_acquisitions):
+for acqnum in range(firstacq,dset.number_of_acquisitions()):
     acq = dset.read_acquisition(acqnum)
 
     # TODO: this is where we would apply noise pre-whitening
