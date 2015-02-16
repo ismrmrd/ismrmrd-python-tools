@@ -20,11 +20,11 @@ from ismrmrdtools import show, transform, coils, grappa, sense
 #   siemens_to_ismrmrd -f meas_MID00032_FID22409_oil_gre_128_150reps_pause_alpha_10.dat -z 2 -o data_reps_data.h5
 # Data can be found in Gadgetron integration test datasets
 
-filename_noise = 'data_reps_noise.h5'
-#filename_noise =  'tpat3_noise.h5'
+#filename_noise = 'data_reps_noise.h5'
+#filename_data = 'data_reps_data.h5'
 
-filename_data = 'data_reps_data.h5'
-#filename_data = 'tpat3_data.h5'
+filename_noise =  'tpat3_noise.h5'
+filename_data = 'tpat3_data.h5'
 
 
 
