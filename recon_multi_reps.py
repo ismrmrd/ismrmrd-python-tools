@@ -37,7 +37,7 @@ noise_dset = ismrmrd.Dataset(filename_noise, 'dataset', create_if_needed=False)
 
 #%%
 # Process the noise data
-noise_reps = noise_dset.number_of_acquisitions
+noise_reps = noise_dset.number_of_acquisitions()
 a = noise_dset.read_acquisition(0)
 noise_samples = a.number_of_samples
 num_coils = a.active_channels
@@ -103,7 +103,7 @@ else:
     
 # In case there are noise scans in the actual dataset, we will skip them. 
 firstacq=0
-for acqnum in range(dset.number_of_acquisitions):
+for acqnum in range(dset.number_of_acquisitions()):
     acq = dset.read_acquisition(acqnum)
     
     if acq.isFlagSet(ismrmrd.ACQ_IS_NOISE_MEASUREMENT):
@@ -126,7 +126,7 @@ dmtx = coils.calculate_prewhitening(noise,scale_factor=(data_dwell_time/noise_dw
 all_data = np.zeros((nreps, ncontrasts, nslices, ncoils, eNz, eNy, rNx), dtype=np.complex64)
 
 # Loop through the rest of the acquisitions and stuff
-for acqnum in range(firstacq,dset.number_of_acquisitions):
+for acqnum in range(firstacq,dset.number_of_acquisitions()):
     acq = dset.read_acquisition(acqnum)
 
     acq_data_prw = coils.apply_prewhitening(acq.data,dmtx)
