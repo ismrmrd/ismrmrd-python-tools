@@ -75,7 +75,7 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_m
     gmap = np.squeeze(np.sqrt(np.sum(abs(unmix) ** 2, 0))) * np.squeeze(np.sqrt(np.sum(abs(csm) ** 2, 0)))
     
     
-    return (unmix,gmap)
+    return (unmix.astype('complex64'),gmap.astype('float32'))
     
 def estimate_convolution_kernel(source_data, kernel_mask, regularization_factor=0.001, target_data=None):
     '''Estimates a 2D k-space convolution kernel (as used in GRAPPA or SPIRiT)
