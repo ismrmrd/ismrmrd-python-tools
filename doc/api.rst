@@ -40,3 +40,8 @@ Imshow
 .. automodule:: ismrmrdtools.show
    :members:
 
+NDArray_io
+----------
+
+.. automodule:: ismrmrdtools.ndarray_io
+   :members:

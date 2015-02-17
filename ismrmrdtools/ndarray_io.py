@@ -4,9 +4,13 @@ from struct import unpack
 def write_ndarray(filename,ndarray):
     '''Writes simple ndarray format. This format is mostly used for debugging purposes
     The file name extension indicates the binary data format:
+
     '*.float' indicates float32
+
     '*.double' indicates float64
+
     '*.cplx' indicates complex64
+
     '*.dplx' indicatex complex128
 
     :param filename: Name of file containing array (extension appended automatically)
@@ -36,9 +40,13 @@ def write_ndarray(filename,ndarray):
 def read_ndarray(filename):
     '''Reads simple ndarray format. This format is mostly used for debugging purposes
     The file name extension indicates the binary data format:
+    
     '*.float' indicates float32
+
     '*.double' indicates float64
+
     '*.cplx' indicates complex64
+
     '*.dplx' indicatex complex128
 
     :param filename: Name of file containing array
