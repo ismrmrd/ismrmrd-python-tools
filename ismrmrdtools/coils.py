@@ -63,7 +63,7 @@ def calculate_csm_walsh(img, smoothing=5, niter=3):
     # Smooth the covariance
     for p in range(ncoils):
         for q in range(ncoils):
-            smooth(Rs[p,q,:,:], smoothing)
+            Rs[p,q] = smooth(Rs[p,q,:,:], smoothing)
 
     # At each point in the image, find the dominant eigenvector
     # and corresponding eigenvalue of the signal covariance
