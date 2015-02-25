@@ -4,6 +4,7 @@ import ismrmrd
 import ismrmrd.xsd
 from ismrmrdtools import simulation, transform
 import numpy as np
+import argparse
 
 def create(filename='testdata.h5', matrix_size=256, coils=8, oversampling=2, repetitions=1, acceleration=1, noise_level=0.05):
 
@@ -82,7 +83,7 @@ def create(filename='testdata.h5', matrix_size=256, coils=8, oversampling=2, rep
     limits1.minimum = 0
     limits1.center = ny/2
     limits1.maximum = ny - 1
-    limits.kspaceEncodingStep1 = limits1
+    limits.kspace_encoding_step_1 = limits1
     
     limits_rep = ismrmrd.xsd.limitType()
     limits_rep.minimum = 0
@@ -94,7 +95,7 @@ def create(filename='testdata.h5', matrix_size=256, coils=8, oversampling=2, rep
     limits_rest.minimum = 0
     limits_rest.center = 0
     limits_rest.maximum = 0
-    limits.kspaceEncodingStep0 = limits_rest
+    limits.kspace_encoding_step_0 = limits_rest
     limits.slice = limits_rest    
     limits.average = limits_rest
     limits.contrast = limits_rest
@@ -163,3 +164,25 @@ def create(filename='testdata.h5', matrix_size=256, coils=8, oversampling=2, rep
 
     # Clean up
     dset.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-o', '--output', help='output filename')
+    parser.add_argument('-m', '--matrix-size', type=int, dest='matrix_size', help='k-space matrix size')
+    parser.add_argument('-c', '--coils', type=int, help='number of coils')
+    parser.add_argument('-s', '--oversampling', type=int, help='oversampling')
+    parser.add_argument('-r', '--repetitions', type=int, help='number of repetitions')
+    parser.add_argument('-a', '--acceleration', type=int, help='acceleration')
+    parser.add_argument('-n', '--noise-level', type=float, dest='noise_level', help='noise level')
+
+    parser.set_defaults(output='testdata.h5', matrix_size=256, coils=8,
+            oversampling=2, repetitions=1, acceleration=1, noise_level=0.05)
+
+    args = parser.parse_args()
+
+    create(args.output, args.matrix_size, args.coils, args.oversampling,
+            args.repetitions, args.acceleration, args.noise_level)
+
+if __name__ == "__main__":
+    main()
