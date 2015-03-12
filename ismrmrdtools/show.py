@@ -6,13 +6,14 @@ import matplotlib.image
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector
 
-def imshow(image_matrix, tile_shape=None, scale=None, titles=[], colorbar=False):
+def imshow(image_matrix, tile_shape=None, scale=None, titles=[], colorbar=False, cmap='jet'):
     """ Tiles images and displays them in a window.
 
     :param image_matrix: a 2D or 3D set of image data
     :param tile_shape: optional shape ``(rows, cols)`` for tiling images
     :param scale: optional ``(min,max)`` values for scaling all images
     :param titles: optional list of titles for each subplot
+    :param cmap: optional colormap for all images
     """
     assert image_matrix.ndim in [2, 3], "image_matrix must have 2 or 3 dimensions"
 
@@ -50,6 +51,7 @@ def imshow(image_matrix, tile_shape=None, scale=None, titles=[], colorbar=False)
     rectprops = dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True)
     cols, rows = tile_shape
     fig = plt.figure()
+    plt.set_cmap(cmap)
     for z in range(image_matrix.shape[0]):
         ax = fig.add_subplot(cols, rows, z+1)
         ax.set_title(titles[z])
