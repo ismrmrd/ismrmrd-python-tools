@@ -125,7 +125,7 @@ def estimate_convolution_kernel(source_data, kernel_mask, regularization_factor=
     
     
     if A.shape[0] < 3*A.shape[1]:
-        print "Warning: number of samples in calibration data might be insufficient"
+        print("Warning: number of samples in calibration data might be insufficient")
     
 
     S = np.linalg.svd(A,compute_uv=False)
