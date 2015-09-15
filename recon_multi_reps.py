@@ -107,11 +107,11 @@ for acqnum in range(dset.number_of_acquisitions()):
     acq = dset.read_acquisition(acqnum)
     
     if acq.isFlagSet(ismrmrd.ACQ_IS_NOISE_MEASUREMENT):
-        print "Found noise scan at acq ", acqnum
+        print("Found noise scan at acq ", acqnum)
         continue
     else:
         firstacq = acqnum
-        print "Imaging acquisition starts acq ", acqnum
+        print("Imaging acquisition starts acq ", acqnum)
         break
 
 #Calculate prewhiterner taking BWs into consideration
