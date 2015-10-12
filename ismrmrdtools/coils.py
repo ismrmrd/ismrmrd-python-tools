@@ -51,7 +51,8 @@ block size (default ``5``)
     :returns csm: Relative coil sensitivity maps, ``[coil, y, x]``
     :returns rho: Total power in the estimated coils maps, ``[y, x]``
     '''
-    assert img.ndim == 3, "Coil sensitivity map must have exactly 3 dimensions"
+    if img.ndim != 3:
+        raise ValueError("Coil sensitivity map must have exactly 3 dimensions")
 
     ncoils = img.shape[0]
     ny = img.shape[1]

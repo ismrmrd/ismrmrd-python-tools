@@ -34,12 +34,13 @@ def sample_data(img_obj, csm, acc=1, ref=0, sshift=0):
 
     sshift = sshift % acc
 
-    assert img_obj.ndim == 2, "Only two dimensional objects supported at the moment"
-    assert csm.ndim == 3, "csm must be a 3 dimensional array"
-    assert img_obj.shape[0] == csm.shape[
-        1], "Object and csm dimension mismatch"
-    assert img_obj.shape[1] == csm.shape[
-        2], "Object and csm dimension mismatch"
+    if img_obj.ndim != 2:
+        raise ValueError("Only two dimensional objects supported at the "
+                         "moment")
+    if csm.ndim != 3:
+        raise ValueError("csm must be a 3 dimensional array")
+    if img_obj.shape[0:2] != csm.shape[1:3]:
+        raise ValueError("Object and csm dimension mismatch")
 
     pat_img = np.zeros(img_obj.shape, dtype=np.int8)
     pat_img[sshift:-1:acc, :] = 1
@@ -141,7 +142,7 @@ def phantom(matrix_size=256, phantom_type='Modified Shepp-Logan',
     if (ellipses is None):
         ellipses = _select_phantom(phantom_type)
     elif (np.size(ellipses, 1) != 6):
-        raise AssertionError("Wrong number of columns in user phantom")
+        raise ValueError("Wrong number of columns in user phantom")
 
     ph = np.zeros((matrix_size, matrix_size), dtype=np.float32)
 

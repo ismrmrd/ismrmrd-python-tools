@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector
 
 
-def imshow(image_matrix, tile_shape=None, scale=None, titles=[], colorbar=False, cmap='jet'):
+def imshow(image_matrix, tile_shape=None, scale=None, titles=[],
+           colorbar=False, cmap='jet'):
     """ Tiles images and displays them in a window.
 
     :param image_matrix: a 2D or 3D set of image data
@@ -16,8 +17,8 @@ def imshow(image_matrix, tile_shape=None, scale=None, titles=[], colorbar=False,
     :param titles: optional list of titles for each subplot
     :param cmap: optional colormap for all images
     """
-    assert image_matrix.ndim in [
-        2, 3], "image_matrix must have 2 or 3 dimensions"
+    if image_matrix.ndim not in [2, 3]:
+        raise ValueError("image_matrix must have 2 or 3 dimensions")
 
     if image_matrix.ndim == 2:
         image_matrix = image_matrix.reshape(
@@ -29,16 +30,17 @@ def imshow(image_matrix, tile_shape=None, scale=None, titles=[], colorbar=False,
 
     if not tile_shape:
         tile_shape = (1, image_matrix.shape[0])
-    assert np.prod(tile_shape) >= image_matrix.shape[0],\
-        "image tile rows x columns must equal the 3rd dim extent of image_matrix"
+    if np.prod(tile_shape) < image_matrix.shape[0]:
+        raise ValueError("image tile rows x columns must equal the 3rd dim "
+                         "extent of image_matrix")
 
     # add empty titles as necessary
     if len(titles) < image_matrix.shape[0]:
         titles.extend(['' for x in range(image_matrix.shape[0] - len(titles))])
 
-    if len(titles) > 0:
-        assert len(titles) >= image_matrix.shape[0],\
-            "number of titles must equal 3rd dim extent of image_matrix"
+    if (len(titles) > 0) and (len(titles) < image_matrix.shape[0]):
+        raise ValueError("number of titles must equal 3rd dim extent of "
+                         "image_matrix")
 
     def onselect(eclick, erelease):
         print((eclick.xdata, eclick.ydata), (erelease.xdata, erelease.ydata))

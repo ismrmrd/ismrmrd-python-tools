@@ -19,7 +19,8 @@ def calculate_sense_unmixing(acc_factor, csm, regularization_factor=0.001):
     :returns gmap: Noise enhancement map, ``[y, x]``
     '''
 
-    assert csm.ndim == 3, "Coil sensitivity map must have exactly 3 dimensions"
+    if csm.ndim != 3:
+        raise ValueError("Coil sensitivity map must have exactly 3 dimensions")
 
     unmix = np.zeros(csm.shape, np.complex64)
 
@@ -37,8 +38,8 @@ def _calculate_sense_unmixing_1d(acc_factor, csm1d, regularization_factor):
     nc = csm1d.shape[0]
     ny = csm1d.shape[1]
 
-    assert (
-        ny % acc_factor) == 0, "ny must be a multiple of the acceleration factor"
+    if (ny % acc_factor) != 0:
+        raise ValueError("ny must be a multiple of the acceleration factor")
 
     unmix1d = np.zeros((nc, ny), dtype=np.complex64)
 

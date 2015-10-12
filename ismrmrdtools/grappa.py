@@ -113,9 +113,12 @@ def estimate_convolution_kernel(source_data, kernel_mask,
     if target_data is None:
         target_data = source_data
 
-    assert source_data.ndim == 3, "Source data must have exactly 3 dimensions"
-    assert target_data.ndim == 3, "Targe data must have exactly 3 dimensions"
-    assert kernel_mask.ndim == 2, "Kernel mask must have exactly 2 dimensions"
+    if source_data.ndim != 3:
+        raise ValueError("Source data must have exactly 3 dimensions")
+    if target_data.ndim != 3:
+        raise ValueError("Targe data must have exactly 3 dimensions")
+    if kernel_mask.ndim != 2:
+        raise ValueError("Kernel mask must have exactly 2 dimensions")
 
     nc_source = source_data.shape[0]
     nc_target = target_data.shape[0]
