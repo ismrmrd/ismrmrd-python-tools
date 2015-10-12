@@ -4,6 +4,7 @@ Helpers for transforming data from k-space to image space and vice-versa.
 import numpy as np
 from numpy.fft import fftshift, ifftshift, fftn, ifftn
 
+
 def transform_kspace_to_image(k, dim=None, img_shape=None):
     """ Computes the Fourier transform from k-space to image space
     along a given or all dimensions
@@ -16,7 +17,8 @@ def transform_kspace_to_image(k, dim=None, img_shape=None):
     if not dim:
         dim = range(k.ndim)
 
-    img = fftshift(ifftn(ifftshift(k, axes=dim), s=img_shape, axes=dim), axes=dim)
+    img = fftshift(
+        ifftn(ifftshift(k, axes=dim), s=img_shape, axes=dim), axes=dim)
     img *= np.sqrt(np.prod(np.take(img.shape, dim)))
     return img
 

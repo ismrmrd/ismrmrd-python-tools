@@ -10,22 +10,20 @@ import os
 import ismrmrd
 import ismrmrd.xsd
 import numpy as np
-import scipy as sp
 
-from ismrmrdtools import show, transform, coils, grappa, sense
+from ismrmrdtools import show, transform, coils, grappa
 
 #%%
-#Convert data from siemens file with
+# Convert data from siemens file with
 #   siemens_to_ismrmrd -f meas_MID00032_FID22409_oil_gre_128_150reps_pause_alpha_10.dat -z 1 -o data_reps_noise.h5
 #   siemens_to_ismrmrd -f meas_MID00032_FID22409_oil_gre_128_150reps_pause_alpha_10.dat -z 2 -o data_reps_data.h5
 # Data can be found in Gadgetron integration test datasets
 
-#filename_noise = 'data_reps_noise.h5'
-#filename_data = 'data_reps_data.h5'
+# filename_noise = 'data_reps_noise.h5'
+# filename_data = 'data_reps_data.h5'
 
-filename_noise =  'tpat3_noise.h5'
+filename_noise = 'tpat3_noise.h5'
 filename_data = 'tpat3_data.h5'
-
 
 
 #%%
@@ -43,18 +41,19 @@ noise_samples = a.number_of_samples
 num_coils = a.active_channels
 noise_dwell_time = a.sample_time_us
 
-noise = np.zeros((num_coils,noise_reps*noise_samples),dtype=np.complex64)
+noise = np.zeros((num_coils, noise_reps*noise_samples), dtype=np.complex64)
 for acqnum in range(noise_reps):
     acq = noise_dset.read_acquisition(acqnum)
-    
+
     # TODO: Currently ignoring noise scans
     if not acq.isFlagSet(ismrmrd.ACQ_IS_NOISE_MEASUREMENT):
-       raise Exception("Errror: non noise scan found in noise calibration")
+        raise Exception("Errror: non noise scan found in noise calibration")
 
-    noise[:,acqnum*noise_samples:acqnum*noise_samples+noise_samples] = acq.data
-    
+    noise[:, acqnum*noise_samples:acqnum *
+          noise_samples+noise_samples] = acq.data
+
 noise = noise.astype('complex64')
-    
+
 #%% Read the actual data
 # Read the noise data
 if not os.path.isfile(filename_data):
@@ -81,7 +80,7 @@ rFOVx = enc.reconSpace.fieldOfView_mm.x
 rFOVy = enc.reconSpace.fieldOfView_mm.y
 rFOVz = enc.reconSpace.fieldOfView_mm.z
 
-#Parallel imaging factor
+# Parallel imaging factor
 acc_factor = enc.parallelImaging.accelerationFactor.kspace_encoding_step_1
 
 # Number of Slices, Reps, Contrasts, etc.
@@ -100,12 +99,12 @@ if enc.encodingLimits.contrast != None:
     ncontrasts = enc.encodingLimits.contrast.maximum + 1
 else:
     ncontrasts = 1
-    
-# In case there are noise scans in the actual dataset, we will skip them. 
-firstacq=0
+
+# In case there are noise scans in the actual dataset, we will skip them.
+firstacq = 0
 for acqnum in range(dset.number_of_acquisitions()):
     acq = dset.read_acquisition(acqnum)
-    
+
     if acq.isFlagSet(ismrmrd.ACQ_IS_NOISE_MEASUREMENT):
         print("Found noise scan at acq ", acqnum)
         continue
@@ -114,34 +113,36 @@ for acqnum in range(dset.number_of_acquisitions()):
         print("Imaging acquisition starts acq ", acqnum)
         break
 
-#Calculate prewhiterner taking BWs into consideration
+# Calculate prewhiterner taking BWs into consideration
 a = dset.read_acquisition(firstacq)
 data_dwell_time = a.sample_time_us
 noise_receiver_bw_ratio = 0.79
-dmtx = coils.calculate_prewhitening(noise,scale_factor=(data_dwell_time/noise_dwell_time)*noise_receiver_bw_ratio)
+dmtx = coils.calculate_prewhitening(
+    noise, scale_factor=(data_dwell_time/noise_dwell_time)*noise_receiver_bw_ratio)
 
-    
+
 #%%
 # Process the actual data
-all_data = np.zeros((nreps, ncontrasts, nslices, ncoils, eNz, eNy, rNx), dtype=np.complex64)
+all_data = np.zeros(
+    (nreps, ncontrasts, nslices, ncoils, eNz, eNy, rNx), dtype=np.complex64)
 
 # Loop through the rest of the acquisitions and stuff
-for acqnum in range(firstacq,dset.number_of_acquisitions()):
+for acqnum in range(firstacq, dset.number_of_acquisitions()):
     acq = dset.read_acquisition(acqnum)
 
-    acq_data_prw = coils.apply_prewhitening(acq.data,dmtx)
+    acq_data_prw = coils.apply_prewhitening(acq.data, dmtx)
 
     # Remove oversampling if needed
     if eNx != rNx:
         xline = transform.transform_kspace_to_image(acq_data_prw, [1])
         x0 = (eNx - rNx) / 2
         x1 = (eNx - rNx) / 2 + rNx
-        xline = xline[:,x0:x1]
-        acq.resize(rNx,acq.active_channels,acq.trajectory_dimensions)
+        xline = xline[:, x0:x1]
+        acq.resize(rNx, acq.active_channels, acq.trajectory_dimensions)
         acq.center_sample = rNx/2
         # need to use the [:] notation here to fill the data
         acq.data[:] = transform.transform_image_to_kspace(xline, [1])
-  
+
     # Stuff into the buffer
     rep = acq.idx.repetition
     contrast = acq.idx.contrast
@@ -154,25 +155,27 @@ all_data = all_data.astype('complex64')
 
 #%%
 # Coil combination
-coil_images = transform.transform_kspace_to_image(np.squeeze(np.mean(all_data,0)),(1,2))
-(csm,rho) = coils.calculate_csm_walsh(coil_images)
-csm_ss = np.sum(csm * np.conj(csm),0)
+coil_images = transform.transform_kspace_to_image(
+    np.squeeze(np.mean(all_data, 0)), (1, 2))
+(csm, rho) = coils.calculate_csm_walsh(coil_images)
+csm_ss = np.sum(csm * np.conj(csm), 0)
 csm_ss = csm_ss + 1.0*(csm_ss < np.spacing(1)).astype('float32')
 
 if acc_factor > 1:
-    coil_data = np.squeeze(np.mean(all_data,0))
+    coil_data = np.squeeze(np.mean(all_data, 0))
     reload(grappa)
-    (unmix,gmap) = grappa.calculate_grappa_unmixing(coil_data, acc_factor)
+    (unmix, gmap) = grappa.calculate_grappa_unmixing(coil_data, acc_factor)
     #(unmix,gmap) = sense.calculate_sense_unmixing(acc_factor,csm)
-    show.imshow(abs(gmap),colorbar=True,scale=(1,2))
-    
-recon = np.zeros((nreps, ncontrasts, nslices, eNz, eNy, rNx), dtype=np.complex64)
-for r in range(0,nreps):
-    recon_data = transform.transform_kspace_to_image(np.squeeze(all_data[r,:,:,:,:,:,:]),(1,2))*np.sqrt(acc_factor)
-    if acc_factor > 1:
-        recon[r,:,:,:,:] = np.sum(unmix * recon_data,0)
-    else:
-        recon[r,:,:,:,:] = np.sum(np.conj(csm) * recon_data,0)
-    
-show.imshow(np.squeeze(np.std(np.abs(recon),0)),colorbar=True,scale=(1,2))
+    show.imshow(abs(gmap), colorbar=True, scale=(1, 2))
 
+recon = np.zeros(
+    (nreps, ncontrasts, nslices, eNz, eNy, rNx), dtype=np.complex64)
+for r in range(0, nreps):
+    recon_data = transform.transform_kspace_to_image(
+        np.squeeze(all_data[r, :, :, :, :, :, :]), (1, 2))*np.sqrt(acc_factor)
+    if acc_factor > 1:
+        recon[r, :, :, :, :] = np.sum(unmix * recon_data, 0)
+    else:
+        recon[r, :, :, :, :] = np.sum(np.conj(csm) * recon_data, 0)
+
+show.imshow(np.squeeze(np.std(np.abs(recon), 0)), colorbar=True, scale=(1, 2))

@@ -51,10 +51,10 @@ else:
     ncontrasts = 1
 
 # TODO loop through the acquisitions looking for noise scans
-firstacq=0
+firstacq = 0
 for acqnum in range(dset.number_of_acquisitions()):
     acq = dset.read_acquisition(acqnum)
-    
+
     # TODO: Currently ignoring noise scans
     if acq.isFlagSet(ismrmrd.ACQ_IS_NOISE_MEASUREMENT):
         print("Found noise scan at acq ", acqnum)
@@ -66,10 +66,11 @@ for acqnum in range(dset.number_of_acquisitions()):
 
 
 # Initialiaze a storage array
-all_data = np.zeros((nreps, ncontrasts, nslices, ncoils, eNz, eNy, rNx), dtype=np.complex64)
+all_data = np.zeros(
+    (nreps, ncontrasts, nslices, ncoils, eNz, eNy, rNx), dtype=np.complex64)
 
 # Loop through the rest of the acquisitions and stuff
-for acqnum in range(firstacq,dset.number_of_acquisitions()):
+for acqnum in range(firstacq, dset.number_of_acquisitions()):
     acq = dset.read_acquisition(acqnum)
 
     # TODO: this is where we would apply noise pre-whitening
@@ -79,12 +80,12 @@ for acqnum in range(firstacq,dset.number_of_acquisitions()):
         xline = transform.transform_kspace_to_image(acq.data, [1])
         x0 = (eNx - rNx) / 2
         x1 = (eNx - rNx) / 2 + rNx
-        xline = xline[:,x0:x1]
-        acq.resize(rNx,acq.active_channels,acq.trajectory_dimensions)
+        xline = xline[:, x0:x1]
+        acq.resize(rNx, acq.active_channels, acq.trajectory_dimensions)
         acq.center_sample = rNx/2
         # need to use the [:] notation here to fill the data
         acq.data[:] = transform.transform_image_to_kspace(xline, [1])
-  
+
     # Stuff into the buffer
     rep = acq.idx.repetition
     contrast = acq.idx.contrast
@@ -94,28 +95,31 @@ for acqnum in range(firstacq,dset.number_of_acquisitions()):
     all_data[rep, contrast, slice, :, z, y, :] = acq.data
 
 # Reconstruct images
-images = np.zeros((nreps, ncontrasts, nslices, eNz, eNy, rNx), dtype=np.float32)
+images = np.zeros(
+    (nreps, ncontrasts, nslices, eNz, eNy, rNx), dtype=np.float32)
 for rep in range(nreps):
     for contrast in range(ncontrasts):
         for slice in range(nslices):
             # FFT
-            if eNz>1:
-                #3D
-                im = transform.transform_kspace_to_image(all_data[rep,contrast,slice,:,:,:,:], [1,2,3])
+            if eNz > 1:
+                # 3D
+                im = transform.transform_kspace_to_image(
+                    all_data[rep, contrast, slice, :, :, :, :], [1, 2, 3])
             else:
-                #2D
-                im = transform.transform_kspace_to_image(all_data[rep,contrast,slice,:,0,:,:], [1,2])
+                # 2D
+                im = transform.transform_kspace_to_image(
+                    all_data[rep, contrast, slice, :, 0, :, :], [1, 2])
 
             # Sum of squares
             im = np.sqrt(np.sum(np.abs(im) ** 2, 0))
-            
+
             # Stuff into the output
-            if eNz>1:
-                #3D
-                images[rep,contrast,slice,:,:,:] = im
+            if eNz > 1:
+                # 3D
+                images[rep, contrast, slice, :, :, :] = im
             else:
-                #2D
-                images[rep,contrast,slice,0,:,:] = im
+                # 2D
+                images[rep, contrast, slice, 0, :, :] = im
 
 # Show an image
-show.imshow(np.squeeze(images[0,0,0,:,:,:]))
+show.imshow(np.squeeze(images[0, 0, 0, :, :, :]))

@@ -17,7 +17,6 @@ def calculate_prewhitening(noise, scale_factor=1.0):
 
     :returns w: Prewhitening matrix, ``[coil, coil]``, w*data is prewhitened
     '''
-
     noise_int = noise.reshape((noise.shape[0], noise.size/noise.shape[0]))
     M = float(noise_int.shape[1])
     dmtx = (1/(M-1))*np.asmatrix(noise_int)*np.asmatrix(noise_int).H
@@ -25,7 +24,8 @@ def calculate_prewhitening(noise, scale_factor=1.0):
     dmtx = dmtx*np.sqrt(2)*np.sqrt(scale_factor)
     return dmtx
 
-def apply_prewhitening(data,dmtx):
+
+def apply_prewhitening(data, dmtx):
     '''Apply the noise prewhitening matrix
 
     :param noise: Input noise data (array or matrix), ``[coil, ...]``
@@ -35,20 +35,22 @@ def apply_prewhitening(data,dmtx):
     '''
 
     s = data.shape
-    return np.asarray(np.asmatrix(dmtx)*np.asmatrix(data.reshape(data.shape[0],data.size/data.shape[0]))).reshape(s)
+    return np.asarray(
+        np.asmatrix(dmtx) * np.asmatrix(
+            data.reshape(data.shape[0], data.size/data.shape[0]))).reshape(s)
 
 
 def calculate_csm_walsh(img, smoothing=5, niter=3):
     '''Calculates the coil sensitivities for 2D data using an iterative version of the Walsh method
 
     :param img: Input images, ``[coil, y, x]``
-    :param smoothing: Smoothing block size (default ``5``)
+    :param smoothing: Smoothing
+block size (default ``5``)
     :parma niter: Number of iterations for the eigenvector power method (default ``3``)
 
     :returns csm: Relative coil sensitivity maps, ``[coil, y, x]``
     :returns rho: Total power in the estimated coils maps, ``[y, x]``
     '''
-
     assert img.ndim == 3, "Coil sensitivity map must have exactly 3 dimensions"
 
     ncoils = img.shape[0]
@@ -56,36 +58,35 @@ def calculate_csm_walsh(img, smoothing=5, niter=3):
     nx = img.shape[2]
 
     # Compute the sample covariance pointwise
-    Rs = np.zeros((ncoils,ncoils,ny,nx),dtype=img.dtype)
+    Rs = np.zeros((ncoils, ncoils, ny, nx), dtype=img.dtype)
     for p in range(ncoils):
         for q in range(ncoils):
-            Rs[p,q,:,:] = img[p,:,:] * np.conj(img[q,:,:])
+            Rs[p, q, :, :] = img[p, :, :] * np.conj(img[q, :, :])
 
     # Smooth the covariance
     for p in range(ncoils):
         for q in range(ncoils):
-            Rs[p,q] = smooth(Rs[p,q,:,:], smoothing)
+            Rs[p, q] = smooth(Rs[p, q, :, :], smoothing)
 
     # At each point in the image, find the dominant eigenvector
     # and corresponding eigenvalue of the signal covariance
     # matrix using the power method
     rho = np.zeros((ny, nx))
-    csm = np.zeros((ncoils, ny, nx),dtype=img.dtype)
+    csm = np.zeros((ncoils, ny, nx), dtype=img.dtype)
     for y in range(ny):
         for x in range(nx):
-            R = Rs[:,:,y,x]
-            v = np.sum(R,axis=0)
+            R = Rs[:, :, y, x]
+            v = np.sum(R, axis=0)
             lam = np.linalg.norm(v)
             v = v/lam
 
             for iter in range(niter):
-                v = np.dot(R,v)
+                v = np.dot(R, v)
                 lam = np.linalg.norm(v)
                 v = v/lam
 
-            rho[y,x] = lam
-            csm[:,y,x] = v
-
+            rho[y, x] = lam
+            csm[:, y, x] = v
     return (csm, rho)
 
 
@@ -234,8 +235,8 @@ def smooth(img, box=5):
     t_real = np.zeros(img.shape)
     t_imag = np.zeros(img.shape)
 
-    ndimage.filters.uniform_filter(img.real,size=box,output=t_real)
-    ndimage.filters.uniform_filter(img.imag,size=box,output=t_imag)
+    ndimage.filters.uniform_filter(img.real, size=box, output=t_real)
+    ndimage.filters.uniform_filter(img.imag, size=box, output=t_imag)
 
     simg = t_real + 1j*t_imag
 
