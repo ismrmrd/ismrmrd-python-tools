@@ -6,21 +6,37 @@ import coils
 def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4, 5),
                               data_mask=None, csm=None,
                               regularization_factor=0.001, target_data=None):
-    '''Calculates unmixing coefficients for a 2D image using a GRAPPA algorithm
+    """Calculates unmixing coefficients for a 2D image using a GRAPPA algorithm
 
-    :param source_data: k-space source data ``[coils, y, x]``
-    :param acc_factor: Acceleration factor, e.g. 2
-    :param kernel_shape: Shape of the k-space kernel ``(ky-lines, kx-points)`` (default ``(4,5)``)
-    :param data_mask: Mask of where calibration data is located in source_data (defaults to all of source_data)
-    :param csm: Coil sensitivity map, ``[coil, y, x]`` (used for b1-weighted combining. Will be estimated from calibratino data if not supplied)
-    :param regularization_factor: adds tychonov regularization (default ``0.001``)
-        - 0 = no regularization
-        - set higher for more aggressive regularization.
-    :param target_data: If target data differs from source data (defaults to source_data)
+    Paramters
+    ---------
+    source_data : (coils, y, x) array
+        k-space source data.
+    acc_factor : int
+        Acceleration factor, e.g. 2
+    kernel_shape : tuple, optional
+        Shape of the k-space kernel (ky-lines, kx-points).
+    data_mask : (y, x) array or None, optional
+        Mask of where calibration data is located in source_data.  defaults to
+        all of the source data.
+    csm : (coil, y, x) array or None, optional
+        Coil sensitivity map. (used for b1-weighted combining. Will be
+        estimated from calibratino data if not supplied.)
+    regularization_factor : float, optional
+        Tikhonov regularization weight.
+            - 0 = no regularization
+            - set higher for more aggressive regularization.
+    target_data : (coil, y, x) array or None, optional
+        If target data differs from source data. (defaults to source_data)
 
-    :returns unmix: Image unmixing coefficients for a single ``x`` location, ``[coil, y, x]``
-    :returns gmap: Noise enhancement map, ``[y, x]``
-    '''
+
+    Returns
+    -------
+    unmix : (coil, y, x) array
+        Image unmixing coefficients for a single ``x`` location.
+    gmap : (y, x) array
+        Noise enhancement map.
+    """
 
     nx = source_data.shape[2]
     ny = source_data.shape[1]
@@ -96,19 +112,28 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4, 5),
 
 def estimate_convolution_kernel(source_data, kernel_mask,
                                 regularization_factor=0.001, target_data=None):
-    '''Estimates a 2D k-space convolution kernel (as used in GRAPPA or SPIRiT)
+    """Estimates a 2D k-space convolution kernel (as used in GRAPPA or SPIRiT).
 
-    :param source_data: k-space source data ``[coils, y, x]``
-    :param kernel_mask: Mask indicating which k-space samples to use in the neighborhood. ``[ky kx]``
-    :param csm: Coil sensitivity map, ``[coil, y, x]`` (used for b1-weighted combining. Will be estimated from calibratino data if not supplied)
-    :param regularization_factor: adds tychonov regularization (default ``0.001``)
-        - 0 = no regularization
-        - set higher for more aggressive regularization.
-    :param target_data: If target data differs from source data (defaults to source_data)
+    Paramters
+    ---------
+    source_data : (coil, y, x) array
+        k-space source data.
+    kernel_mask : (ky, kx) array
+        Mask indicating which k-space samples to use in the neighborhood.
+    regularization_factor : float, optional
+        Tikhonov regularization weight
+            - 0 = no regularization
+            - set higher for more aggressive regularization.
+    target_data : (coil, y, x) array or None, optional
+        If target data differs from source data (defaults to source_data)
 
-    :returns unmix: Image unmixing coefficients for a single ``x`` location, ``[coil, y, x]``
-    :returns gmap: Noise enhancement map, ``[y, x]``
-    '''
+    Returns
+    -------
+    unmix : (coil, y, x) array
+        Image unmixing coefficients for a single ``x`` location.
+    gmap : (y, x) array
+        Noise enhancement map.
+    """
 
     if target_data is None:
         target_data = source_data

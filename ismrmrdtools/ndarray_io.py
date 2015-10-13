@@ -3,21 +3,25 @@ from struct import unpack
 
 
 def write_ndarray(filename, ndarray):
-    '''Writes simple ndarray format. This format is mostly used for debugging purposes
+    """Writes a simple ndarray format. This format is mostly used for debugging
+    purposes.
+
+    Paramters
+    ---------
+    filename : str
+        Name of file containing array (extension appended automatically).
+    ndarray : array
+        The array to write out to `filename`.
+
+    Notes
+    -----
     The file name extension indicates the binary data format:
 
     '*.float' indicates float32
-
     '*.double' indicates float64
-
     '*.cplx' indicates complex64
-
     '*.dplx' indicatex complex128
-
-    :param filename: Name of file containing array (extension appended automatically)
-    :param ndarray: Numpy array
-    '''
-
+    """
     datatype = ndarray.dtype
     if datatype == np.dtype(np.float32):
         fullfilename = filename + str('.float')
@@ -28,7 +32,7 @@ def write_ndarray(filename, ndarray):
     elif datatype == np.dtype(np.complex128):
         fullfilename = filename + str('.dplx')
     else:
-        raise Exception('Unsupported data type')
+        raise ValueError('Unsupported data type')
 
     f = open(fullfilename, 'wb')
     dims = np.zeros((ndarray.ndim+1, 1), dtype=np.int32)
@@ -40,22 +44,28 @@ def write_ndarray(filename, ndarray):
 
 
 def read_ndarray(filename):
-    '''Reads simple ndarray format. This format is mostly used for debugging purposes
+    """Read a simple ndarray format. This format is mostly used for debugging
+    purposes.
+
+    Paramters
+    ---------
+    filename : str
+        Name of file containing array.
+
+    Returns
+    -------
+    arr: array
+        Numpy ndarray.
+
+    Notes
+    -----
     The file name extension indicates the binary data format:
 
     '*.float' indicates float32
-
     '*.double' indicates float64
-
     '*.cplx' indicates complex64
-
     '*.dplx' indicatex complex128
-
-    :param filename: Name of file containing array
-    :returns arr: Numpy ndarray
-    '''
-
-    datatype = None
+    """
     if filename.endswith('.float'):
         datatype = np.dtype(np.float32)
     elif filename.endswith('.double'):

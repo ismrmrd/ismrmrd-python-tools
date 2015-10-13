@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tools for generating coil sensitivities and phantoms
 """
@@ -7,29 +6,38 @@ from ismrmrdtools import transform
 
 
 def sample_data(img_obj, csm, acc=1, ref=0, sshift=0):
-    """
-      Samples the k-space of object provided in 'img_obj' after first applying
-      coil sensitivity maps in 'csm' and Fourier transforming to k-space.
+    """Sample the k-space of object provided in `img_obj` after first applying
+    coil sensitivity maps in `csm` and Fourier transforming to k-space.
 
-      INPUT:
-        - img_obj [x,y]    : Object in image space
-        - csm     [x,y,c]  : Coil sensitivity maps
-        - acc     scalar   : Acceleration factor
-        - ref     scalar   : Reference lines (in center of k-space)
-        - sshift  scalar   : Sampling shift, i.e for undersampling, do we
-                             start with line 1 or line 1+sshift?
+    Paramters
+    ---------
+    img_obj : (y, x) array
+        Object in image space
+    csm : (c, y, x) array
+        Coil sensitivity maps
+    acc : float, optional
+        Acceleration factor
+    ref : float, optional
+        Reference lines (in center of k-space)
+    sshift : float, optional
+        Sampling shift, i.e for undersampling, do we start with line 1 or line
+        1+sshift?.
 
-      OUPUT:
-        - data    [kx,ky,c]: Sampled data in k-space (zeros where not sampled)
-        - pat     [kx,ky,c]: Sampling pattern (0 = not sampled,
-                                               1 = imaging data,
-                                               2 = reference data,
-                                               3 = reference and imaging data)
+    Returns
+    -------
+    data : (c, ky, kx) array
+        Sampled data in k-space (zeros where not sampled).
+    pat : (c, ky, kx) array
+        Sampling pattern : (0 = not sampled,
+                            1 = imaging data,
+                            2 = reference data,
+                            3 = reference and imaging data)
 
+    Notes
+    -----
+    Code made available for the ISMRM 2013 Sunrise Educational Course
 
-       Code made available for the ISMRM 2013 Sunrise Educational Course
-
-       Michael S. Hansen (michael.hansen@nih.gov)
+    Michael S. Hansen (michael.hansen@nih.gov)
     """
 
     sshift = sshift % acc
@@ -58,11 +66,24 @@ def sample_data(img_obj, csm, acc=1, ref=0, sshift=0):
 
 def generate_birdcage_sensitivities(matrix_size=256, number_of_coils=8,
                                     relative_radius=1.5, normalize=True):
-    """ Generates birdcage coil sensitivites.
+    """ Generate birdcage coil sensitivites.
 
-    :param matrix_size: size of imaging matrix in pixels (default ``256``)
-    :param number_of_coils: Number of simulated coils (default ``8``)
-    :param relative_radius: Relative radius of birdcage (default ``1.5``)
+
+    Parameters
+    ----------
+    matrix_size : int, optional
+        size of imaging matrix in pixels.
+    number_of_coils : int, optional
+        Number of simulated coils.
+    relative_radius : int, optional
+        Relative radius of birdcage.
+    normalize : bool, optional
+        If True, normalize by the root sum-of-squares intensity.
+
+    Returns
+    -------
+    out : array
+        coil sensitivies (number_of_coils, matrix_size, matrix_size)
 
     This function is heavily inspired by the mri_birdcage.m Matlab script in
     Jeff Fessler's IRT package: http://web.eecs.umich.edu/~fessler/code/
@@ -93,50 +114,57 @@ def generate_birdcage_sensitivities(matrix_size=256, number_of_coils=8,
 def phantom(matrix_size=256, phantom_type='Modified Shepp-Logan',
             ellipses=None):
     """
-    Create a Shepp-Logan or modified Shepp-Logan phantom::
+    Create a Shepp-Logan [1]_ or modified Shepp-Logan [2]_ phantom.
 
-        phantom (n = 256, phantom_type = 'Modified Shepp-Logan',
-                 ellipses = None)
+    Parameters
+    ----------
+    matrix_size : int, optional
+        size of imaging matrix in pixels.
 
-    :param matrix_size: size of imaging matrix in pixels (default 256)
+    phantom_type : {'Modified Shepp-Logan', 'Shepp-Logan'}, optional
+        The type of phantom to produce.  This is overridden if `ellipses` is
+        also specified.
 
-    :param phantom_type: The type of phantom to produce.
-        Either "Modified Shepp-Logan" or "Shepp-Logan". This is overridden
-        if ``ellipses`` is also specified.
+    ellipses : list or None, optional
+        Custom set of ellipses to use.  See notes below for details.
 
-    :param ellipses: Custom set of ellipses to use.  These should be in
-        the form::
+    Returns
+    -------
+    ph : array
+        Phantom image.
 
-            [[I, a, b, x0, y0, phi],
-            [I, a, b, x0, y0, phi],
-                            ...]
+    Notes
+    -----
+    The `ellipses` should be in the form::
 
-        where each row defines an ellipse.
+        [[I, a, b, x0, y0, phi],
+         [I, a, b, x0, y0, phi],
+                           ...]
+    where each row defines an ellipse.
 
-        :I: Additive intensity of the ellipse.
-        :a: Length of the major axis.
-        :b: Length of the minor axis.
-        :x0: Horizontal offset of the centre of the ellipse.
-        :y0: Vertical offset of the centre of the ellipse.
-        :phi: Counterclockwise rotation of the ellipse in degrees,
-            measured as the angle between the horizontal axis and
-            the ellipse major axis.
+    I: Additive intensity of the ellipse.
+    a: Length of the major axis.
+    b: Length of the minor axis.
+    x0: Horizontal offset of the centre of the ellipse.
+    y0: Vertical offset of the centre of the ellipse.
+    phi: Counterclockwise rotation of the ellipse in degrees,
+         measured as the angle between the horizontal axis and
+         the ellipse major axis.
 
-    The image bounding box in the algorithm is ``[-1, -1], [1, 1]``,
-    so the values of ``a``, ``b``, ``x0``, ``y0`` should all be specified with
-    respect to this box.
+    The image bounding box in the algorithm is `[-1, -1], [1, 1]`,
+    so the values of `a`, `b`, `x0`, `y0` should all be specified
+    with respect to this box.
 
-    :returns: Phantom image
+    References
+    ----------
 
-    References:
+    .. [1] Shepp, L. A.; Logan, B. F.; Reconstructing Interior Head Tissue
+        from X-Ray Transmissions, IEEE Transactions on Nuclear Science,
+        Feb. 1974, p. 232.
 
-    Shepp, L. A.; Logan, B. F.; Reconstructing Interior Head Tissue
-    from X-Ray Transmissions, IEEE Transactions on Nuclear Science,
-    Feb. 1974, p. 232.
-
-    Toft, P.; "The Radon Transform - Theory and Implementation",
-    Ph.D. thesis, Department of Mathematical Modelling, Technical
-    University of Denmark, June 1996.
+    .. [2] Toft, P.; "The Radon Transform - Theory and Implementation",
+        Ph.D. thesis, Department of Mathematical Modelling, Technical
+        University of Denmark, June 1996.
     """
 
     if (ellipses is None):
@@ -185,7 +213,7 @@ def _select_phantom(name):
 
 
 def _shepp_logan ():
-    """  Standard head phantom, taken from Shepp & Logan. """
+    """Standard head phantom, taken from Shepp & Logan."""
     return [[   2,   .69,   .92,    0,      0,   0],
             [-.98, .6624, .8740,    0, -.0184,   0],
             [-.02, .1100, .3100,  .22,      0, -18],
@@ -199,7 +227,7 @@ def _shepp_logan ():
 
 
 def _mod_shepp_logan ():
-    """  Modified version of Shepp & Logan's head phantom, adjusted to improve
+    """Modified version of Shepp & Logan's head phantom, adjusted to improve
     contrast.  Taken from Toft.
     """
     return [[   1,   .69,   .92,    0,      0,   0],

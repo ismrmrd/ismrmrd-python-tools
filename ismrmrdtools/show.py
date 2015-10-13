@@ -9,13 +9,20 @@ from matplotlib.widgets import RectangleSelector
 
 def imshow(image_matrix, tile_shape=None, scale=None, titles=[],
            colorbar=False, cmap='jet'):
-    """ Tiles images and displays them in a window.
+    """ Tile images and display them in a window.
 
-    :param image_matrix: a 2D or 3D set of image data
-    :param tile_shape: optional shape ``(rows, cols)`` for tiling images
-    :param scale: optional ``(min,max)`` values for scaling all images
-    :param titles: optional list of titles for each subplot
-    :param cmap: optional colormap for all images
+    Paramters
+    ---------
+    image_matrix : array
+        a 2D or 3D set of image data
+    tile_shape : array or None, optional
+        optional shape `(rows, cols)` for tiling images
+    scale : tuple or None, optional
+        optional `(min, max)` values for scaling all images
+    titles : list or None, optional
+        optional list of titles for each subplot
+    cmap : str or `matplotlib.colors.Colormap`, optional
+        optional colormap for all images
     """
     if image_matrix.ndim not in [2, 3]:
         raise ValueError("image_matrix must have 2 or 3 dimensions")
