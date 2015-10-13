@@ -4,8 +4,7 @@ Created on Wed Feb  4 09:59:18 2015
 
 @author: Michael S. Hansen
 """
-
-#%%
+from __future__ import division, print_function, absolute_import
 import os
 import ismrmrd
 import ismrmrd.xsd
@@ -13,7 +12,6 @@ import numpy as np
 
 from ismrmrdtools import show, transform, coils, grappa
 
-#%%
 # Convert data from siemens file with
 #   siemens_to_ismrmrd -f meas_MID00032_FID22409_oil_gre_128_150reps_pause_alpha_10.dat -z 1 -o data_reps_noise.h5
 #   siemens_to_ismrmrd -f meas_MID00032_FID22409_oil_gre_128_150reps_pause_alpha_10.dat -z 2 -o data_reps_data.h5
@@ -25,15 +23,12 @@ from ismrmrdtools import show, transform, coils, grappa
 filename_noise = 'tpat3_noise.h5'
 filename_data = 'tpat3_data.h5'
 
-
-#%%
 # Read the noise data
 if not os.path.isfile(filename_noise):
     print("%s is not a valid file" % filename_noise)
     raise SystemExit
 noise_dset = ismrmrd.Dataset(filename_noise, 'dataset', create_if_needed=False)
 
-#%%
 # Process the noise data
 noise_reps = noise_dset.number_of_acquisitions()
 a = noise_dset.read_acquisition(0)
@@ -54,8 +49,7 @@ for acqnum in range(noise_reps):
 
 noise = noise.astype('complex64')
 
-#%% Read the actual data
-# Read the noise data
+# Read the actual data
 if not os.path.isfile(filename_data):
     print("%s is not a valid file" % filename_data)
     raise SystemExit
@@ -85,17 +79,17 @@ acc_factor = enc.parallelImaging.accelerationFactor.kspace_encoding_step_1
 
 # Number of Slices, Reps, Contrasts, etc.
 ncoils = header.acquisitionSystemInformation.receiverChannels
-if enc.encodingLimits.slice != None:
+if enc.encodingLimits.slice is not None:
     nslices = enc.encodingLimits.slice.maximum + 1
 else:
     nslices = 1
 
-if enc.encodingLimits.repetition != None:
+if enc.encodingLimits.repetition is not None:
     nreps = enc.encodingLimits.repetition.maximum + 1
 else:
     nreps = 1
 
-if enc.encodingLimits.contrast != None:
+if enc.encodingLimits.contrast is not None:
     ncontrasts = enc.encodingLimits.contrast.maximum + 1
 else:
     ncontrasts = 1
@@ -118,10 +112,9 @@ a = dset.read_acquisition(firstacq)
 data_dwell_time = a.sample_time_us
 noise_receiver_bw_ratio = 0.79
 dmtx = coils.calculate_prewhitening(
-    noise, scale_factor=(data_dwell_time/noise_dwell_time)*noise_receiver_bw_ratio)
+    noise,
+    scale_factor=(data_dwell_time/noise_dwell_time)*noise_receiver_bw_ratio)
 
-
-#%%
 # Process the actual data
 all_data = np.zeros(
     (nreps, ncontrasts, nslices, ncoils, eNz, eNy, rNx), dtype=np.complex64)
@@ -153,7 +146,6 @@ for acqnum in range(firstacq, dset.number_of_acquisitions()):
 
 all_data = all_data.astype('complex64')
 
-#%%
 # Coil combination
 coil_images = transform.transform_kspace_to_image(
     np.squeeze(np.mean(all_data, 0)), (1, 2))

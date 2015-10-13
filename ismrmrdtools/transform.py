@@ -1,6 +1,7 @@
 """
 Helpers for transforming data from k-space to image space and vice-versa.
 """
+from __future__ import division, print_function, absolute_import
 import numpy as np
 from numpy.fft import fftshift, ifftshift, fftn, ifftn
 
@@ -24,7 +25,7 @@ def transform_kspace_to_image(k, dim=None, img_shape=None):
         data in image space (along transformed dimensions)
     """
     if dim is None:
-        dim = range(k.ndim)
+        dim = tuple(range(k.ndim))
 
     img = fftshift(
         ifftn(ifftshift(k, axes=dim), s=img_shape, axes=dim), axes=dim)
@@ -51,7 +52,7 @@ def transform_image_to_kspace(img, dim=None, k_shape=None):
         data in k-space (along transformed dimensions)
     """
     if dim is None:
-        dim = range(img.ndim)
+        dim = tuple(range(img.ndim))
 
     k = fftshift(fftn(ifftshift(img, axes=dim), s=k_shape, axes=dim), axes=dim)
     k /= np.sqrt(np.prod(np.take(img.shape, dim)))

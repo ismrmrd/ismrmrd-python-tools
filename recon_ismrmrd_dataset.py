@@ -1,5 +1,5 @@
 # coding: utf-8
-
+from __future__ import division, print_function, absolute_import
 import os
 import ismrmrd
 import ismrmrd.xsd
@@ -35,17 +35,17 @@ rFOVz = enc.reconSpace.fieldOfView_mm.z
 
 # Number of Slices, Reps, Contrasts, etc.
 ncoils = header.acquisitionSystemInformation.receiverChannels
-if enc.encodingLimits.slice != None:
+if enc.encodingLimits.slice is not None:
     nslices = enc.encodingLimits.slice.maximum + 1
 else:
     nslices = 1
 
-if enc.encodingLimits.repetition != None:
+if enc.encodingLimits.repetition is not None:
     nreps = enc.encodingLimits.repetition.maximum + 1
 else:
     nreps = 1
 
-if enc.encodingLimits.contrast != None:
+if enc.encodingLimits.contrast is not None:
     ncontrasts = enc.encodingLimits.contrast.maximum + 1
 else:
     ncontrasts = 1

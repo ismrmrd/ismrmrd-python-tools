@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#%%
 #Basic setup
+from __future__ import division, print_function, absolute_import
 import time
 import numpy as np
 from ismrmrdtools import simulation, coils, show

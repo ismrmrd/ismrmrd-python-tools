@@ -1,6 +1,7 @@
 """
 Utilities for coil sensivity maps, pre-whitening, etc.
 """
+from __future__ import division, print_function, absolute_import
 import numpy as np
 from scipy import ndimage
 

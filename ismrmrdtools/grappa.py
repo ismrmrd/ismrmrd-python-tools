@@ -1,6 +1,7 @@
+from __future__ import division, print_function, absolute_import
 import numpy as np
 from numpy.fft import fftshift, ifftshift, ifftn
-import coils
+from . import coils
 
 
 def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4, 5),
