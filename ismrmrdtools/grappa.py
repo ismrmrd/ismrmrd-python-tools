@@ -160,8 +160,8 @@ def estimate_convolution_kernel(source_data, kernel_mask,
     equations = (ky_range[1]-ky_range[0])*(kx_range[1]-kx_range[0])
     unknowns = offsets.shape[0]*nc_source
 
-    A = np.asmatrix(np.zeros((equations, unknowns), dtype=np.complex128))
-    b = np.asmatrix(np.zeros((equations, nc_target), dtype=np.complex128))
+    A = np.zeros((equations, unknowns), dtype=np.complex128)
+    b = np.zeros((equations, nc_target), dtype=np.complex128)
 
     for sc in range(nc_source):
         for p in range(offsets.shape[0]):
@@ -181,8 +181,8 @@ def estimate_convolution_kernel(source_data, kernel_mask,
               "insufficient")
 
     S = np.linalg.svd(A, compute_uv=False)
-    A_inv = np.dot(np.linalg.pinv(np.dot(A.H, A) + np.eye(A.shape[1]) *
-                   (regularization_factor*np.max(np.abs(S)))**2), A.H)
+    A_inv = np.dot(np.linalg.pinv(np.dot(np.conj(A.T), A) + np.eye(A.shape[1]) *
+                   (regularization_factor*np.max(np.abs(S)))**2), np.conj(A.T))
     x = np.dot(A_inv, b)
 
     offsets = np.argwhere(kernel_mask == 1)
