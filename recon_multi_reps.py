@@ -163,7 +163,6 @@ csm_ss = csm_ss + 1.0*(csm_ss < np.spacing(1)).astype('float32')
 
 if acc_factor > 1:
     coil_data = np.squeeze(np.mean(all_data, 0))
-    reload(grappa)
     (unmix, gmap) = grappa.calculate_grappa_unmixing(coil_data, acc_factor)
     #(unmix,gmap) = sense.calculate_sense_unmixing(acc_factor,csm)
     show.imshow(abs(gmap), colorbar=True, scale=(1, 2))
