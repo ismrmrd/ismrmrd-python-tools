@@ -38,7 +38,7 @@ def write_ndarray(filename, ndarray):
     f = open(fullfilename, 'wb')
     dims = np.zeros((ndarray.ndim+1, 1), dtype=np.int32)
     dims[0] = ndarray.ndim
-    for d in range(0, ndarray.ndim):
+    for d in range(ndarray.ndim):
         dims[d+1] = ndarray.shape[ndarray.ndim-d-1]
     f.write(dims.tobytes())
     f.write(ndarray.tobytes())
@@ -82,7 +82,7 @@ def read_ndarray(filename):
     ndims = f.read(4)
     ndims = unpack('<I', ndims)[0]
     dims = np.zeros((ndims), dtype=np.int32)
-    for d in range(0, ndims):
+    for d in range(ndims):
         di = f.read(4)
         di = unpack('<I', di)[0]
         dims[ndims-1-d] = di

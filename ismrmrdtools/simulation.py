@@ -92,14 +92,14 @@ def generate_birdcage_sensitivities(matrix_size=256, number_of_coils=8,
 
     out = np.zeros(
         (number_of_coils, matrix_size, matrix_size), dtype=np.complex64)
-    for c in range(0, number_of_coils):
+    for c in range(number_of_coils):
         coilx = relative_radius*np.cos(c*(2*np.pi/number_of_coils))
         coily = relative_radius*np.sin(c*(2*np.pi/number_of_coils))
         coil_phase = -c*(2*np.pi/number_of_coils)
 
-        for y in range(0, matrix_size):
+        for y in range(matrix_size):
             y_co = float(y-matrix_size/2)/float(matrix_size/2)-coily
-            for x in range(0, matrix_size):
+            for x in range(matrix_size):
                 x_co = float(x-matrix_size/2)/float(matrix_size/2)-coilx
                 rr = np.sqrt(x_co**2+y_co**2)
                 phi = np.arctan2(x_co, -y_co) + coil_phase

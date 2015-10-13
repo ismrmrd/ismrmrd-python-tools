@@ -74,7 +74,7 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4, 5),
     kx_cal = (sampled_indices[1][0], sampled_indices[1][-1])
     ky_cal = (sampled_indices[0][0], sampled_indices[0][-1])
 
-    for s in range(0, acc_factor):
+    for s in range(acc_factor):
         kernel_mask = np.zeros(
             (kernel_size[0]*acc_factor, kernel_size[1]), dtype=np.int8)
         kernel_mask[s:kernel_mask.shape[0]:acc_factor, :] = 1
@@ -95,7 +95,7 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4, 5),
 
     unmix = np.zeros(source_data.shape, dtype=np.complex64)
 
-    for c in range(0, nc_target):
+    for c in range(nc_target):
         kernel_pad = _pad_kernel(kernel[c, :, :, :], unmix.shape)
         kernel_pad = fftshift(
             ifftn(ifftshift(kernel_pad, axes=(1, 2)), axes=(1, 2)), axes=(1, 2))
@@ -163,15 +163,15 @@ def estimate_convolution_kernel(source_data, kernel_mask,
     A = np.asmatrix(np.zeros((equations, unknowns), dtype=np.complex128))
     b = np.asmatrix(np.zeros((equations, nc_target), dtype=np.complex128))
 
-    for sc in range(0, nc_source):
-        for p in range(0, offsets.shape[0]):
+    for sc in range(nc_source):
+        for p in range(offsets.shape[0]):
             yslice = slice(ky_range[0]+offsets[p, 0],
                            ky_range[1]+offsets[p, 0])
             xslice = slice(kx_range[0]+offsets[p, 1],
                            kx_range[1]+offsets[p, 1])
             A[:, sc*offsets.shape[0]+p] = source_data[
                 sc, yslice, xslice].reshape((equations, 1))
-    for tc in range(0, nc_target):
+    for tc in range(nc_target):
         b[:, tc] = target_data[
             tc, ky_range[0]:ky_range[1],
             kx_range[0]:kx_range[1]].reshape((equations, 1))
@@ -188,9 +188,9 @@ def estimate_convolution_kernel(source_data, kernel_mask,
     offsets = np.argwhere(kernel_mask == 1)
     kernel = np.zeros((nc_target, nc_source, kernel_mask.shape[
                       0], kernel_mask.shape[1]), dtype=np.complex64)
-    for tc in range(0, nc_target):
-        for sc in range(0, nc_source):
-            for p in range(0, offsets.shape[0]):
+    for tc in range(nc_target):
+        for sc in range(nc_source):
+            for p in range(offsets.shape[0]):
                 kernel[tc, sc, offsets[p, 0], offsets[p, 1]] = x[
                     sc*offsets.shape[0]+p, tc]
 

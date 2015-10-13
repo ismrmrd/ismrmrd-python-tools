@@ -33,7 +33,7 @@ def calculate_sense_unmixing(acc_factor, csm, regularization_factor=0.001):
 
     unmix = np.zeros(csm.shape, np.complex64)
 
-    for x in range(0, csm.shape[2]):
+    for x in range(csm.shape[2]):
         unmix[:, :, x] = _calculate_sense_unmixing_1d(
             acc_factor, np.squeeze(csm[:, :, x]), regularization_factor)
 
@@ -53,7 +53,7 @@ def _calculate_sense_unmixing_1d(acc_factor, csm1d, regularization_factor):
     unmix1d = np.zeros((nc, ny), dtype=np.complex64)
 
     nblocks = ny/acc_factor
-    for b in range(0, nblocks):
+    for b in range(nblocks):
         A = np.matrix(csm1d[:, b:ny:nblocks]).T
         if np.max(np.abs(A)) > 0:
             #            unmix1d[:,b:ny:nblocks] = np.linalg.pinv(A)
