@@ -170,11 +170,11 @@ def estimate_convolution_kernel(source_data, kernel_mask,
             xslice = slice(kx_range[0]+offsets[p, 1],
                            kx_range[1]+offsets[p, 1])
             A[:, sc*offsets.shape[0]+p] = source_data[
-                sc, yslice, xslice].reshape((equations, 1))
+                sc, yslice, xslice].reshape((equations, ))
     for tc in range(nc_target):
         b[:, tc] = target_data[
             tc, ky_range[0]:ky_range[1],
-            kx_range[0]:kx_range[1]].reshape((equations, 1))
+            kx_range[0]:kx_range[1]].reshape((equations, ))
 
     if A.shape[0] < 3*A.shape[1]:
         print("Warning: number of samples in calibration data might be "
