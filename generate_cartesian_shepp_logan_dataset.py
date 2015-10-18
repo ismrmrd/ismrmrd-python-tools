@@ -17,7 +17,7 @@ def create(filename='testdata.h5', matrix_size=256, coils=8, oversampling=2,
 
     # Oversample if needed
     if oversampling > 1:
-        padding = (oversampling*phan.shape[1] - phan.shape[1])/2
+        padding = (oversampling*phan.shape[1] - phan.shape[1]) // 2
         phan = np.pad(phan, ((0, 0), (padding, padding)), mode='constant')
         csm = np.pad(
             csm, ((0, 0), (0, 0), (padding, padding)), mode='constant')
@@ -85,13 +85,13 @@ def create(filename='testdata.h5', matrix_size=256, coils=8, oversampling=2,
 
     limits1 = ismrmrd.xsd.limitType()
     limits1.minimum = 0
-    limits1.center = ny/2
+    limits1.center = ny // 2
     limits1.maximum = ny - 1
     limits.kspace_encoding_step_1 = limits1
 
     limits_rep = ismrmrd.xsd.limitType()
     limits_rep.minimum = 0
-    limits_rep.center = repetitions / 2
+    limits_rep.center = repetitions // 2
     limits_rep.maximum = repetitions - 1
     limits.repetition = limits_rep
 
@@ -121,7 +121,7 @@ def create(filename='testdata.h5', matrix_size=256, coils=8, oversampling=2,
     acq.resize(nkx, coils)
     acq.version = 1
     acq.available_channels = coils
-    acq.center_sample = nkx/2
+    acq.center_sample = nkx // 2
     acq.read_dir[0] = 1.0
     acq.phase_dir[1] = 1.0
     acq.slice_dir[2] = 1.0

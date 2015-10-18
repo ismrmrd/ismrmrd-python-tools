@@ -78,11 +78,11 @@ for acqnum in range(firstacq, dset.number_of_acquisitions()):
     # Remove oversampling if needed
     if eNx != rNx:
         xline = transform.transform_kspace_to_image(acq.data, [1])
-        x0 = (eNx - rNx) / 2
-        x1 = (eNx - rNx) / 2 + rNx
+        x0 = (eNx - rNx) // 2
+        x1 = (eNx - rNx) // 2 + rNx
         xline = xline[:, x0:x1]
         acq.resize(rNx, acq.active_channels, acq.trajectory_dimensions)
-        acq.center_sample = rNx/2
+        acq.center_sample = rNx // 2
         # need to use the [:] notation here to fill the data
         acq.data[:] = transform.transform_image_to_kspace(xline, [1])
 
