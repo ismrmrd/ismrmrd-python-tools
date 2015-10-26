@@ -7,7 +7,7 @@ except ImportError:
     cmdclass={}
 
 setup(name='ismrmrd-python-tools',
-        version='0.1',
+        version='0.2',
         description='ISMRMRD Image Reconstruction Tools',
         author='ISMRMRD Developers',
         url='https://github.com/ismrmrd/ismrmrd-python-tools',
