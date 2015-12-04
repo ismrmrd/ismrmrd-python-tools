@@ -22,7 +22,7 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4, 5),
         all of the source data.
     csm : (coil, y, x) array or None, optional
         Coil sensitivity map. (used for b1-weighted combining. Will be
-        estimated from calibratino data if not supplied.)
+        estimated from calibration data if not supplied.)
     regularization_factor : float, optional
         Tikhonov regularization weight.
             - 0 = no regularization
