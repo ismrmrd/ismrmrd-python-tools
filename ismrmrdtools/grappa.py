@@ -150,8 +150,8 @@ def estimate_convolution_kernel(source_data, kernel_mask,
     nc_target = target_data.shape[0]
 
     offsets = np.argwhere(kernel_mask == 1)
-    offsets[:, 0] -= kernel_mask.shape[0]/2
-    offsets[:, 1] -= kernel_mask.shape[1]/2
+    offsets[:, 0] -= kernel_mask.shape[0]//2
+    offsets[:, 1] -= kernel_mask.shape[1]//2
     ky_range = (
         0-np.min(offsets[:, 0]), source_data.shape[1]-np.max(offsets[:, 0]))
     kx_range = (
