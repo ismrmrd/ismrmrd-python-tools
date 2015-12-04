@@ -3,33 +3,9 @@
 # Basic setup
 from __future__ import division, print_function, absolute_import
 import numpy as np
-import scipy.io
 from ismrmrdtools import sense, grappa, show, simulation, transform, coils
 
-# import some data
-exercise_data = scipy.io.loadmat('hansen_exercises2.mat')
-csm = np.transpose(exercise_data['smaps'])
-pat = np.transpose(exercise_data['sp'])
-data = np.transpose(exercise_data['data'])
-kspace = np.logical_or(pat == 1, pat == 3).astype('float32')*(data)
-
-acc_factor = 4
-alias_img = transform.transform_kspace_to_image(
-    kspace, dim=(1, 2)) * np.sqrt(acc_factor)
-show.imshow(np.abs(alias_img))
-
-(unmix_grappa, gmap_grappa) = grappa.calculate_grappa_unmixing(
-    data, acc_factor, data_mask=pat > 1, csm=csm, kernel_size=(4, 5))
-# (unmix_grappa, gmap_grappa) = grappa.calculate_grappa_unmixing(
-#      data, acc_factor, data_mask=pat>1)
-show.imshow(np.abs(gmap_grappa), colorbar=True)
-recon_grappa = np.squeeze(np.sum(alias_img * unmix_grappa, 0))
-show.imshow(np.abs(recon_grappa), colorbar=True)
-
-scipy.io.savemat('tmp_data.mat', {'pat_py': pat, 'data_py': data, 'csm_py': csm,
-                                  'alias_img_py': alias_img,
-                                  'unmix_grappa_py': unmix_grappa})
-
+# generate some data
 matrix_size = 256
 csm = simulation.generate_birdcage_sensitivities(matrix_size)
 phan = simulation.phantom(matrix_size)
