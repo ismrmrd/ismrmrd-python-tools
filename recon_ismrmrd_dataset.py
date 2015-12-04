@@ -8,6 +8,8 @@ import numpy as np
 from ismrmrdtools import show, transform
 
 # Load file
+# Can generate testdata.h5 using ismrmrd via:
+#     ismrmrd_generate_cartesian_shepp_logan
 filename = '/tmp/testdata.h5'
 if not os.path.isfile(filename):
     print("%s is not a valid file" % filename)
