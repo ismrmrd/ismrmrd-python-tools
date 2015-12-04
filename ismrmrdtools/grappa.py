@@ -53,14 +53,14 @@ def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4, 5),
 
     if csm is None:
         # Assume calibration data is in the middle
-        f = np.asarray(np.asmatrix(np.hamming(np.max(
-            np.sum(data_mask, 0)))).T * np.asmatrix(
-                np.hamming(np.max(np.sum(data_mask, 1)))))
+        hy = np.hamming(np.max(np.sum(data_mask, 0)))
+        hx = np.hamming(np.max(np.sum(data_mask, 1)))
+        f = hy[:, np.newaxis] * hx[np.newaxis, :]
         fmask = np.zeros(
             (source_data.shape[1], source_data.shape[2]), dtype=np.complex64)
         idx = np.argwhere(data_mask == 1)
         fmask[idx[:, 0], idx[:, 1]] = f.reshape(idx.shape[0])
-        fmask = np.tile(fmask[None, :, :], (nc_source, 1, 1))
+        fmask = np.tile(fmask[np.newaxis, :, :], (nc_source, 1, 1))
         csm = fftshift(
             ifftn(
                 ifftshift(source_data * fmask, axes=(1, 2)),
