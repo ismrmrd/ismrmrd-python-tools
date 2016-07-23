@@ -99,7 +99,7 @@ class ImageViewer(object):
     window_level_mouse = None
 
     
-    def __init__(self, im_arr, frame_dimension = None):
+    def __init__(self, im_arr, frame_dimension = None, cmap='gray'):
         
         if len(im_arr.shape) < 2:
             raise Exception("Image viewer needs at least a two dimensional array")
@@ -123,6 +123,8 @@ class ImageViewer(object):
 
         self.window = np.max(self.data) - np.min(self.data)
         self.level = np.min(self.data) + self.window/2
+
+        self.cmap = cmap
 
         self.draw_plot()
 
@@ -204,6 +206,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description="ISMRMRD Image Viewer", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-t', '--time_dimension', type=int, default=-1,help='Dimension to be interpreted as time (frame)')
+    parser.add_argument('-c', '--colormap', default='gray', help='Colormap')
     parser.add_argument('ismrmrd_file', help="ISMRMRD (HDF5) file")
     parser.add_argument('ismrmrd_group', help="Image group within HDF5 file")
     args = parser.parse_args()
@@ -212,9 +215,9 @@ def main():
     h, img_array = read_ismrmrd_image_series(args.ismrmrd_file, args.ismrmrd_group)
 
     if args.time_dimension > -1:
-        v = ImageViewer(np.squeeze(img_array), args.time_dimension)
+        v = ImageViewer(np.squeeze(img_array), args.time_dimension,cmap=args.colormap)
     else:
-        v = ImageViewer(np.squeeze(img_array))
+        v = ImageViewer(np.squeeze(img_array),cmap=args.colormap)
 
     plt.show()
     print "Returned from show"
