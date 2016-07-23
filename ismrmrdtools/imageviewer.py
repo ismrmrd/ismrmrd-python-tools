@@ -36,6 +36,51 @@ def read_ismrmrd_image_series(filename, groupname):
 
     return h, im_array
 
+class WindowLevelMouse:
+
+    def __init__(self, viewer):
+        self.press = None
+        self.inaxes = None
+        self.viewer = viewer
+        self.figure = self.viewer.fig
+        self.connect()
+
+    def connect(self):
+        'connect to all the events we need'
+        self.cidpress = self.figure.canvas.mpl_connect('button_press_event', self.on_press)
+        self.cidrelease = self.figure.canvas.mpl_connect('button_release_event', self.on_release)
+        self.cidmotion = self.figure.canvas.mpl_connect('motion_notify_event', self.on_motion)
+
+    def on_press(self, event):
+        'on button press we will see if the mouse is over us and store some data'
+        if self.figure.canvas.manager.toolbar._active is None:
+            if event.inaxes in self.viewer.axs:
+                self.press = event.xdata, event.ydata
+                self.window_ref = self.viewer.window
+                self.level_ref = self.viewer.level
+                self.inaxes = event.inaxes
+
+    def on_motion(self, event):
+        if (event.inaxes is not None) and (event.inaxes == self.inaxes) and (self.press is not None):
+            xpress, ypress = self.press
+            xlim = event.inaxes.get_xlim()
+            ylim = event.inaxes.get_ylim()
+            dx = (event.xdata - xpress)/(xlim[1]-xlim[0])
+            dy = (event.ydata - ypress)/(ylim[1]-ylim[0])
+            self.viewer.window_slider.set_val(self.window_ref * (1.0+dx))
+            self.viewer.level_slider.set_val(self.level_ref * (1.0+dy))
+
+    def on_release(self, event):
+        self.press = None
+        self.inaxes = None
+
+    def disconnect(self):
+        'disconnect all the stored connection ids'
+        self.figure.canvas.mpl_disconnect(self.cidpress)
+        self.figure.canvas.mpl_disconnect(self.cidrelease)
+        self.figure.canvas.mpl_disconnect(self.cidmotion)
+
+
 class ImageViewer(object):
     data = None
     im_per_frame = 0
@@ -51,6 +96,8 @@ class ImageViewer(object):
     window = None
     level = None
     clim = None
+    window_level_mouse = None
+
     
     def __init__(self, im_arr, frame_dimension = None):
         
@@ -78,7 +125,8 @@ class ImageViewer(object):
         self.level = np.min(self.data) + self.window/2
 
         self.draw_plot()
-        
+
+
     def draw_plot(self):
         self.fig = plt.figure()
 
@@ -126,6 +174,11 @@ class ImageViewer(object):
 
         self.update_contrast()
         
+        self.window_level_mouse = WindowLevelMouse(self)
+        
+        manager = plt.get_current_fig_manager()
+
+
     def set_window(self, val):
         self.window = val
         self.update_contrast()
