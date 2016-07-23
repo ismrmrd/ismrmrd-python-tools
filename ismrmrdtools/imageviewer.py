@@ -46,8 +46,12 @@ class ImageViewer(object):
     fig = []
     cmap = 'gray'
     frame_slider = None
-    contrast_slider = None
-
+    window_slider = None
+    level_slider = None
+    window = None
+    level = None
+    clim = None
+    
     def __init__(self, im_arr, frame_dimension = None):
         
         if len(im_arr.shape) < 2:
@@ -69,6 +73,9 @@ class ImageViewer(object):
         self.cols = self.rows
         while self.cols*self.rows < self.im_per_frame:
             self.rows = self.rows+1
+
+        self.window = np.max(self.data) - np.min(self.data)
+        self.level = np.min(self.data) + self.window/2
 
         self.draw_plot()
         
@@ -99,23 +106,39 @@ class ImageViewer(object):
         cbar_ax = self.fig.add_axes([0.85, 0.25, 0.05, 0.5])
         self.fig.colorbar(im, cax=cbar_ax)
         
-        
-        slider_cmin_ax = self.fig.add_axes([0.85, 0.15, 0.10, 0.025])
-        self.contrast_min_slider = widgets.Slider(slider_cmin_ax, label='cmin: ', color='black', valmin=0, valmax=np.max(self.data), valinit=0.0)
-        self.contrast_min_slider.on_changed(lambda value: self.update_contrast((self.contrast_min_slider.val,self.contrast_max_slider.val)))
+        slider_window_ax = self.fig.add_axes([0.85, 0.15, 0.10, 0.025])
+        window_min = 0
+        window_max = np.max(self.data)-np.min(self.data)
+        self.window = window_max
+        self.window_slider = widgets.Slider(slider_window_ax, label='W: ', color='black', valmin=window_min, valmax=window_max, valinit=self.window)
+        self.window_slider.on_changed(lambda value: self.set_window(value))
 
-        slider_cmax_ax = self.fig.add_axes([0.85, 0.10, 0.10, 0.025])
-        self.contrast_max_slider = widgets.Slider(slider_cmax_ax, label='cmax: ', color='black', valmin=0, valmax=np.max(self.data), valinit=np.max(self.data))
-        self.contrast_max_slider.on_changed(lambda value: self.update_contrast((self.contrast_min_slider.val,self.contrast_max_slider.val)))
+        slider_level_ax = self.fig.add_axes([0.85, 0.10, 0.10, 0.025])
+        level_max = np.max(self.data)
+        level_min = np.min(self.data)
+        self.level = (level_max-level_min)/2
+        self.level_slider = widgets.Slider(slider_level_ax, label='L: ', color='black', valmin=level_min, valmax=level_max, valinit=self.level)
+        self.level_slider.on_changed(lambda value: self.set_level(value))
 
         slider_f_ax = self.fig.add_axes([0.85, 0.05, 0.10, 0.025])
-        self.frame_slider = widgets.Slider(slider_f_ax, label='t: ', color='black', valmin=0, valmax=self.data.shape[0]-1,valfmt=' %d',valinit=0)
-        self.frame_slider.on_changed(lambda value: self.update_plot(int(value)))
-    
-    def update_contrast(self, val):
-        for im in self.ims:
-            im.set_clim(val)
+        self.frame_slider = widgets.Slider(slider_f_ax, label='T: ', color='black', valmin=0, valmax=self.data.shape[0]-1,valfmt=' %d',valinit=0)
+        self.frame_slider.on_changed(lambda value: self.update_plot(frame=int(value)))
 
+        self.update_contrast()
+        
+    def set_window(self, val):
+        self.window = val
+        self.update_contrast()
+
+    def set_level(self, val):
+        self.level = val
+        self.update_contrast()
+        
+
+    def update_contrast(self):
+        self.clim = (self.level-self.window/2, self.level+self.window/2)
+        for im in self.ims:
+            im.set_clim(self.clim)
 
     def update_plot(self, frame=0):
         for r in range(0,self.rows):
@@ -123,9 +146,6 @@ class ImageViewer(object):
                 im_no = r*self.cols+c
                 if im_no < self.im_per_frame:
                     self.ims[im_no].set_data(np.squeeze(self.data[frame,im_no,:,:]))
-
-    def show(self):
-        self.fig.show()
 
 def main():
     import argparse
@@ -143,7 +163,6 @@ def main():
     else:
         v = ImageViewer(np.squeeze(img_array))
 
-    v.show()
     plt.show()
     print "Returned from show"
 
