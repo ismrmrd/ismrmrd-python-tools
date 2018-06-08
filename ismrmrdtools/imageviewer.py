@@ -220,7 +220,7 @@ def main():
         v = ImageViewer(np.squeeze(img_array),cmap=args.colormap)
 
     plt.show()
-    print "Returned from show"
+    print("Returned from show")
 
 if __name__ == "__main__":
     main()
