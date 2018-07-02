@@ -18,7 +18,7 @@ def calculate_prewhitening(noise, scale_factor=1.0):
     :returns w: Prewhitening matrix, ``[coil, coil]``, w*data is prewhitened
     '''
 
-    noise_int = noise.reshape((noise.shape[0], noise.size/noise.shape[0]))
+    noise_int = noise.reshape((noise.shape[0], noise.size//noise.shape[0]))
     M = float(noise_int.shape[1])
     dmtx = (1/(M-1))*np.asmatrix(noise_int)*np.asmatrix(noise_int).H
     dmtx = np.linalg.inv(np.linalg.cholesky(dmtx))
@@ -35,7 +35,7 @@ def apply_prewhitening(data,dmtx):
     '''
 
     s = data.shape
-    return np.asarray(np.asmatrix(dmtx)*np.asmatrix(data.reshape(data.shape[0],data.size/data.shape[0]))).reshape(s)
+    return np.asarray(np.asmatrix(dmtx)*np.asmatrix(data.reshape(data.shape[0],data.size//data.shape[0]))).reshape(s)
 
 
 def calculate_csm_walsh(img, smoothing=5, niter=3):
