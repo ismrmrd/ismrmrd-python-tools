@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.fft import fftshift, ifftshift,ifftn
-import coils
+from ismrmrdtools import coils
 
 def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_mask=None, csm=None, regularization_factor=0.001, target_data=None):
     '''Calculates unmixing coefficients for a 2D image using a GRAPPA algorithm
