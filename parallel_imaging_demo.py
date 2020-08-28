@@ -5,6 +5,7 @@
 import numpy as np
 import scipy as sp
 from ismrmrdtools import sense, grappa, show, simulation, transform,coils
+from importlib import reload
 
 #%%
 #import some data
