@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.fft import fftshift, ifftshift,ifftn
 from ismrmrdtools import coils
+from importlib import reload
 
 def calculate_grappa_unmixing(source_data, acc_factor, kernel_size=(4,5), data_mask=None, csm=None, regularization_factor=0.001, target_data=None):
     '''Calculates unmixing coefficients for a 2D image using a GRAPPA algorithm
@@ -104,8 +105,8 @@ def estimate_convolution_kernel(source_data, kernel_mask, regularization_factor=
     nc_target = target_data.shape[0]
 
     offsets = np.argwhere(kernel_mask==1)
-    offsets[:,0] -= kernel_mask.shape[0]/2
-    offsets[:,1] -= kernel_mask.shape[1]/2  
+    offsets[:,0] -= int(kernel_mask.shape[0]/2)
+    offsets[:,1] -= int(kernel_mask.shape[1]/2)
     ky_range = (0-np.min(offsets[:,0]),source_data.shape[1]-np.max(offsets[:,0]))
     kx_range = (0-np.min(offsets[:,1]),source_data.shape[2]-np.max(offsets[:,1]))
     
@@ -145,7 +146,7 @@ def _pad_kernel(gkernel,padded_shape):
     assert gkernel.ndim == 3, "Kernel padding routine must take 3 dimensional kernel"
     padded_kernel = np.zeros(padded_shape,dtype=np.complex64)
     padding = np.asarray(padded_shape)-np.asarray(gkernel.shape)
-    padding_before = (padding+1)/2
+    padding_before = ((padding+1)/2).astype(int)
     padded_kernel[padding_before[0]:(padding_before[0]+gkernel.shape[0]),padding_before[1]:(padding_before[1]+gkernel.shape[1]),padding_before[2]:(padding_before[2]+gkernel.shape[2])] = gkernel
     return padded_kernel
      

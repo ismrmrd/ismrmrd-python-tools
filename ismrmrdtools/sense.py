@@ -38,12 +38,12 @@ def _calculate_sense_unmixing_1d(acc_factor, csm1d, regularization_factor):
 
     unmix1d = np.zeros((nc,ny),dtype=np.complex64)
 
-    nblocks = ny/acc_factor
+    nblocks = int(ny/acc_factor)
     for b in range(0,nblocks):
         A = np.matrix(csm1d[:,b:ny:nblocks]).T
         if np.max(np.abs(A)) > 0:
 #            unmix1d[:,b:ny:nblocks] = np.linalg.pinv(A)
-            AHA = A.H * A;
+            AHA = A.H * A
             reduced_eye = np.diag(np.abs(np.diag(AHA))>0)
             n_alias = np.sum(reduced_eye)
             scaled_reg_factor = regularization_factor * np.trace(AHA)/n_alias
