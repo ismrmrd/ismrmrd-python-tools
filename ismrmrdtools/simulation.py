@@ -41,7 +41,7 @@ def sample_data(img_obj, csm, acc=1, ref=0, sshift=0):
     pat_img[sshift:-1:acc,:] = 1
     pat_ref = np.zeros(img_obj.shape,dtype=np.int8)
     if ref>0:
-        pat_ref[(0+img_obj.shape[0]/2):(ref+img_obj.shape[0]/2),:] = 2
+        pat_ref[(0+int(img_obj.shape[0]/2)):(ref+int(img_obj.shape[0]/2)),:] = 2
 
     pat = pat_img + pat_ref
     
