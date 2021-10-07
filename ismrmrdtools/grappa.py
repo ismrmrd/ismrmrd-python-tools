@@ -148,4 +148,4 @@ def _pad_kernel(gkernel,padded_shape):
     padding_before = ((padding+1)/2).astype(int)
     padded_kernel[padding_before[0]:(padding_before[0]+gkernel.shape[0]),padding_before[1]:(padding_before[1]+gkernel.shape[1]),padding_before[2]:(padding_before[2]+gkernel.shape[2])] = gkernel
     return padded_kernel
-     
+

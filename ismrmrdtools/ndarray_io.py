@@ -80,3 +80,4 @@ def read_ndarray(filename):
     arr = arr.reshape(dims)
     
     return arr
+
