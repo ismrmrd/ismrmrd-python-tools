@@ -17,7 +17,7 @@ def sample_data(img_obj, csm, acc=1, ref=0, sshift=0):
 #%    - sshift  scalar   : Sampling shift, i.e for undersampling, do we
 #%                         start with line 1 or line 1+sshift?
 #%
-#%  OUPUT:
+#%  OUTPUT:
 #%    - data    [kx,ky,c]: Sampled data in k-space (zeros where not sampled)
 #%    - pat     [kx,ky,c]: Sampling pattern (0 = not sampled,
 #%                                           1 = imaging data,

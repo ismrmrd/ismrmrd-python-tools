@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Utilities for coil sensivity maps, pre-whitening, etc
+Utilities for coil sensitivity maps, pre-whitening, etc
 """
 import numpy as np
 from scipy import ndimage
@@ -11,7 +11,7 @@ def calculate_prewhitening(noise, scale_factor=1.0):
 
     :param noise: Input noise data (array or matrix), ``[coil, nsamples]``
     :scale_factor: Applied on the noise covariance matrix. Used to
-                   adjust for effective noise bandwith and difference in
+                   adjust for effective noise bandwidth and difference in
                    sampling rate between noise calibration and actual measurement:
                    scale_factor = (T_acq_dwell/T_noise_dwell)*NoiseReceiverBandwidthRatio
 

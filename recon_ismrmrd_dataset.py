@@ -65,7 +65,7 @@ for acqnum in range(dset.number_of_acquisitions()):
         break
 
 
-# Initialiaze a storage array
+# Initialize a storage array
 all_data = np.zeros((nreps, ncontrasts, nslices, ncoils, eNz, eNy, rNx), dtype=np.complex64)
 
 # Loop through the rest of the acquisitions and stuff

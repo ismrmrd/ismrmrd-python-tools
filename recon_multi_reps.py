@@ -49,7 +49,7 @@ for acqnum in range(noise_reps):
     
     # TODO: Currently ignoring noise scans
     if not acq.isFlagSet(ismrmrd.ACQ_IS_NOISE_MEASUREMENT):
-       raise Exception("Errror: non noise scan found in noise calibration")
+       raise Exception("Error: non noise scan found in noise calibration")
 
     noise[:,acqnum*noise_samples:acqnum*noise_samples+noise_samples] = acq.data
     
@@ -175,4 +175,3 @@ for r in range(0,nreps):
         recon[r,:,:,:,:] = np.sum(np.conj(csm) * recon_data,0)
     
 show.imshow(np.squeeze(np.std(np.abs(recon),0)),colorbar=True,scale=(1,2))
-
