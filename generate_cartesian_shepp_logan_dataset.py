@@ -43,24 +43,24 @@ def create(filename='testdata.h5', matrix_size=256, coils=8, oversampling=2, rep
     header.acquisitionSystemInformation = sys
 
     # Encoding
-    encoding = ismrmrd.xsd.encoding()
-    encoding.trajectory = ismrmrd.xsd.trajectoryType.cartesian
+    encoding = ismrmrd.xsd.encodingType()
+    encoding.trajectory = ismrmrd.xsd.trajectoryType.CARTESIAN
     
     # encoded and recon spaces
-    efov = ismrmrd.xsd.fieldOfView_mm()
+    efov = ismrmrd.xsd.fieldOfViewMm()
     efov.x = oversampling*256
     efov.y = 256
     efov.z = 5
-    rfov = ismrmrd.xsd.fieldOfView_mm()
+    rfov = ismrmrd.xsd.fieldOfViewMm()
     rfov.x = 256
     rfov.y = 256
     rfov.z = 5
     
-    ematrix = ismrmrd.xsd.matrixSize()
+    ematrix = ismrmrd.xsd.matrixSizeType()
     ematrix.x = nkx
     ematrix.y = nky
     ematrix.z = 1
-    rmatrix = ismrmrd.xsd.matrixSize()
+    rmatrix = ismrmrd.xsd.matrixSizeType()
     rmatrix.x = nx
     rmatrix.y = ny
     rmatrix.z = 1
@@ -107,7 +107,7 @@ def create(filename='testdata.h5', matrix_size=256, coils=8, oversampling=2, rep
     encoding.encodingLimits = limits
     header.encoding.append(encoding)
 
-    dset.write_xml_header(header.toxml('utf-8'))           
+    dset.write_xml_header(header.toXML('utf-8'))           
 
     # Synthesize the k-space data
     Ktrue = transform.transform_image_to_kspace(coil_images,(1,2))
